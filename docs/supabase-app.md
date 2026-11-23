@@ -36,3 +36,57 @@ The export buttons download current database records as CSV or Excel. Profit exp
 Use the repository root as the Vercel project root. The Express entry point is `index.js`. The build command in `vercel.json` copies the single-page frontend and shared KB assets into Vercel's `public/` directory. Set the Supabase and staff sign-in environment variables for the intended deployment before deploying. [Express on Vercel](https://vercel.com/docs/frameworks/backend/express)
 
 Vercel Hobby is for personal, non-commercial use. Commercial use of the shop app requires an eligible Vercel plan. [Vercel Fair Use Guidelines](https://vercel.com/docs/limits/fair-use-guidelines)
+
+## Backend blueprint
+
+The app is for staff recording motorcycle purchases, stock, resales, Qist collections and operating expenses. The frontend uses plain HTML, CSS and JavaScript. Node.js and Express provide an authenticated API. Supabase provides Postgres and private photo storage. The new app uses one configured staff credential, verified with bcrypt. An eight-hour signed session cookie grants API access.
+
+### Data model
+
+| Table | Columns and relationships |
+| --- | --- |
+| `bikes` | Bigint ID, bike name, model, photo URL, chassis and plate numbers, engine/tyre/body condition, purchase date and payment method, purchase price, repair cost, other cost, expected sell price, status and UUID request key. Postgres generates total cost from the three costs and indexes the normalized chassis number. |
+| `customers` | Bigint ID, name, phone and optional CNIC. A generated phone key supports grouping sales for the same customer. |
+| `sales` | Bigint ID, unique bike reference, customer reference and buyer details at the time of sale, bike price, interest rate and amount, sale total, cost at sale, payment method, sale date and UUID request key. Postgres generates profit as the sale total minus the recorded cost. |
+| `qist` | Bigint ID, unique sale reference, total, advance, remaining balance, monthly amount and next due date. Postgres derives the payment status from the remaining balance. |
+| `qist_payments` | Bigint ID, Qist plan reference, collected amount, payment date and UUID request key. |
+| `expenses` | Bigint ID, expense category, amount, date, optional description and UUID request key. |
+
+Money is stored as fixed-precision numeric values. Dates use Postgres date columns. Foreign keys keep sales, plans and collections linked to existing records. The SQL file contains the full types, indexes, constraints and grants. [Supabase schema](../database/supabase/schema.sql)
+
+### API routes
+
+| Method and route | Purpose |
+| --- | --- |
+| `GET /api/health` | Reports whether the required settings are present. |
+| `POST /api/login`, `POST /api/logout` | Creates or clears the staff session. |
+| `GET /api/state` | Returns a consistent snapshot for the single-page app. |
+| `GET /api/bikes`, `POST /api/bikes` | Lists bikes and records purchases into stock. |
+| `POST /api/bikes/photos`, `GET /api/bikes/photos/:name` | Uploads and retrieves private bike photos. |
+| `GET /api/sales`, `POST /api/sales` | Lists sales and records a sale with its customer and optional Qist plan. |
+| `GET /api/customers` | Lists customer records. |
+| `GET /api/qist`, `POST /api/qist/:id/payments` | Lists plans and records collections. |
+| `GET /api/expenses`, `POST /api/expenses` | Lists and records operating expenses. |
+| `GET /api/export/:section?format=csv` | Exports `stock`, `sold`, `customers` or `profit`. Use `format=excel` for an XLSX workbook. |
+
+### Security and validation
+
+Protected routes verify the staff session. State-changing browser requests check their origin. Staff login has a rate limit, and the session cookie is HttpOnly, SameSite Strict and Secure on Vercel. The Supabase key stays on the server. The schema enables row-level security, and only the service role can run the app's database functions or read the business tables through the Data API. [Supabase API keys](https://supabase.com/docs/guides/getting-started/api-keys)
+
+Express validates names, contact details, amounts, dates, IDs and photo types. Postgres locks the bike while selling it and locks the Qist plan while recording a payment. Each write updates its related records in the same transaction. Request keys protect retries from recording duplicate purchases, expenses, sales or collections.
+
+### Source layout
+
+```text
+frontend/
+  index.html, style.css, app.js
+backend/
+  server.js, supabase.js, reports.js
+  routes/
+    bikes.js, sales.js, customers.js, qist.js, expenses.js
+database/
+  supabase/schema.sql
+.env.example
+index.js
+vercel.json
+```

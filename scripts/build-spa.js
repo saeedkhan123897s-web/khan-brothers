@@ -7,5 +7,5 @@ const output = path.join(root, 'public');
 
 fs.mkdirSync(output, { recursive: true });
 for (const [file, source] of Object.entries(require('../backend/spa-assets'))) {
-    fs.copyFileSync(path.join(root, source), path.join(output, file));
+    fs.copyFileSync(source, path.join(output, file));
 }

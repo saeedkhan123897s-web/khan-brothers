@@ -43,7 +43,7 @@ test('local links and script and stylesheet paths resolve from the Express URL r
             if (url.origin !== 'http://localhost') continue;
             const urlPath = decodeURIComponent(url.pathname);
             const destination = filename === path.join(frontend, 'index.html') && Object.hasOwn(spaAssets, urlPath.slice(1))
-                ? path.join(root, spaAssets[urlPath.slice(1)]) : frontendPath(urlPath);
+                ? spaAssets[urlPath.slice(1)] : frontendPath(urlPath);
             assert.ok(fs.existsSync(destination), `${route} links to ${target}`);
         }
     }

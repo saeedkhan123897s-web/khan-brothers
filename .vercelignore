@@ -1,0 +1,11 @@
+# Keep local credentials and the legacy ERP's uploaded records off Vercel.
+.env
+.env.*
+/uploads/
+
+# Keep the deployment focused on the Supabase app.
+/frontend/admin/
+/frontend/public/
+/database/migrations/
+/database/seeds/
+/tests/

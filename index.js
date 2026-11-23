@@ -1,3 +1,6 @@
 'use strict';
 
-module.exports = require('./backend/server').createApp();
+const express = require('express');
+const { createApp } = require('./backend/server');
+
+module.exports = createApp(process.env, undefined, express());

@@ -8,7 +8,6 @@ const cookieParser = require('cookie-parser');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { rateLimit } = require('express-rate-limit');
-const path = require('node:path');
 const { createSupabase, problem } = require('./supabase');
 const { run } = require('./routes/shared');
 const { state, exportReport } = require('./reports');
@@ -21,13 +20,11 @@ const routes = {
     expenses: require('./routes/expenses')
 };
 
-function createApp(settings = process.env, db = createSupabase(settings)) {
-    const app = express();
+function createApp(settings = process.env, db = createSupabase(settings), app = express()) {
     const cookieName = 'kb_business_session';
     const secure = settings.VERCEL === '1' || settings.NODE_ENV === 'production';
     const cookieOptions = { httpOnly: true, sameSite: 'strict', secure, path: '/' };
     const canSignIn = Boolean(settings.APP_PASSWORD_HASH && settings.APP_SESSION_SECRET?.length >= 32);
-    const root = path.resolve(__dirname, '..');
     app.disable('x-powered-by');
     if (settings.VERCEL === '1') app.set('trust proxy', 1);
     app.use(helmet({
@@ -81,11 +78,9 @@ function createApp(settings = process.env, db = createSupabase(settings)) {
     }));
     app.use('/api', (_req, _res, next) => next(problem(404, 'Endpoint not found.')));
 
-    if (settings.VERCEL !== '1') {
-        for (const [url, source] of Object.entries(assets)) {
-            app.get(url === 'index.html' ? ['/', '/index.html'] : '/' + url,
-                (_req, res) => res.sendFile(path.join(root, source)));
-        }
+    for (const [url, source] of Object.entries(assets)) {
+        app.get(url === 'index.html' ? ['/', '/index.html'] : '/' + url,
+            (_req, res) => res.sendFile(source));
     }
     app.use((error, _req, res, _next) => {
         if (error.code === 'LIMIT_FILE_SIZE') return res.status(413).json({ error: 'Photos must be at most 2 MB.' });
