@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Purchase orders, supplier balances and goods receipts for Khan Brothers.">
+    <title>Purchases | Khan Brothers</title>
+    <link rel="stylesheet" href="/assets/css/admin/purchases.css">
+    <script src="/assets/js/common/helper.js" defer></script>
+    <script src="/assets/js/admin/app.js" defer></script>
+    <script src="/assets/js/admin/purchases.js" defer></script>
+    <link rel="icon" href="/assets/icons/image.png" type="image/png">
+    <link rel="stylesheet" href="/assets/css/common/kb-brand.css">
+    <script src="/assets/js/common/kb-loader.js" defer></script>
+</head>
+<body class="purchase-page" data-page="purchase-list">
+
+    <main class="purchase-main">
+        <section class="purchase-hero admin-hero">
+            <div>
+                <p class="purchase-eyebrow">PURCHASING</p>
+                <h1>Purchase orders</h1>
+                <p>Track supplier orders, receive stock and keep payable balances in view.</p>
+            </div>
+            <div class="purchase-hero__actions">
+                <a class="purchase-button purchase-button--quiet" href="purchase-returns.html">Purchase returns</a>
+                <a class="purchase-button purchase-button--primary" href="new-purchase.html" data-purchase-access="purchases.create" hidden>+ New purchase</a>
+                <a class="purchase-button purchase-button--quiet" href="new-purchase.html?product_type=motorcycle" data-purchase-access="purchases.create" hidden>Buy motorcycles</a>
+                <a class="purchase-button purchase-button--quiet" href="used-bikes.html" data-purchase-access="used_bikes.view" hidden>Used motorcycles</a>
+            </div>
+        </section>
+
+        <section class="purchase-stats" aria-label="Purchase summary">
+            <article class="purchase-stat"><span>Purchases in view</span><strong id="purchaseCount">—</strong><small>Orders matching filters</small></article>
+            <article class="purchase-stat"><span>Awaiting receipt</span><strong id="pendingCount">—</strong><small>Pending or partly received</small></article>
+            <article class="purchase-stat"><span>Received orders</span><strong id="receivedCount">—</strong><small>Fully stocked</small></article>
+            <article class="purchase-stat purchase-stat--due"><span>Amount due in view</span><strong id="purchaseDue">PKR 0.00</strong><small>Across loaded orders</small></article>
+        </section>
+
+        <section class="purchase-panel">
+            <div class="purchase-panel__heading">
+                <div><h2 class="admin-panel-title">All purchases</h2><p>Search and filter supplier orders.</p></div>
+                <button class="purchase-icon-button" id="refreshPurchases" type="button" aria-label="Refresh purchases">↻</button>
+            </div>
+
+            <form class="purchase-filters" id="purchaseFilters">
+                <label class="purchase-search">Search
+                    <input id="purchaseSearch" name="search" type="search" placeholder="Purchase number or supplier">
+                </label>
+                <label>Status
+                    <select id="purchaseStatus" name="status">
+                        <option value="">All statuses</option>
+                        <option value="pending">Pending</option>
+                        <option value="partial">Partly received</option>
+                        <option value="received">Received</option>
+                        <option value="cancelled">Cancelled</option>
+                    </select>
+                </label>
+                <label>Payment
+                    <select id="purchasePaymentStatus" name="payment_status">
+                        <option value="">All payments</option>
+                        <option value="pending">Pending</option>
+                        <option value="partial">Part paid</option>
+                        <option value="paid">Paid</option>
+                        <option value="overdue">Overdue</option>
+                    </select>
+                </label>
+                <button class="purchase-button purchase-button--primary" type="submit">Apply filters</button>
+            </form>
+
+            <div class="purchase-table-wrap">
+                <table class="purchase-table">
+                    <thead><tr><th>Purchase</th><th>Supplier</th><th>Date</th><th>Total</th><th>Paid</th><th>Due</th><th>Status</th><th>Actions</th></tr></thead>
+                    <tbody id="purchaseRows"><tr><td class="purchase-empty" colspan="8">Loading purchases…</td></tr></tbody>
+                </table>
+            </div>
+            <div class="purchase-pagination" id="purchasePagination" aria-live="polite"></div>
+        </section>
+    </main>
+
+    <dialog class="purchase-dialog" id="purchaseDialog" aria-labelledby="purchaseDialogTitle">
+        <div class="purchase-dialog__heading"><div><p class="purchase-eyebrow">PURCHASE DETAILS</p><h2 id="purchaseDialogTitle">Purchase</h2></div><button class="purchase-icon-button" type="button" data-close-dialog aria-label="Close details">×</button></div>
+        <div id="purchaseDetails"></div>
+    </dialog>
+    <div class="purchase-toast" id="purchaseToast" role="status" aria-live="polite"></div>
+    <footer class="purchase-footer"><span>© 2026 Khan Brothers</span><span>Motorcycle Workshop &amp; Spare Parts · Swat, Pakistan</span></footer>
+</body>
+</html>

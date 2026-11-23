@@ -1,0 +1,43 @@
+.kb-loader {
+    position: fixed;
+    z-index: 20000;
+    inset: 0;
+    display: grid;
+    min-height: 100dvh;
+    align-content: center;
+    place-items: center;
+    gap: clamp(8px, 2vh, 16px);
+    padding: 12px;
+    box-sizing: border-box;
+    color: #efc46c;
+    background: #000;
+    font-family: Inter, Arial, sans-serif;
+}
+
+.kb-loader-brand { display: grid; justify-items: center; gap: 8px; text-align: center; }
+.kb-loader-brand img {
+    width: clamp(43px, 12vw, 60px);
+    height: auto;
+    aspect-ratio: 1;
+    border: 2px solid #efc46c;
+    border-radius: 50%;
+    object-fit: cover;
+    box-shadow: 0 0 26px #dbad4950;
+}
+.kb-loader-brand strong { font-size: clamp(13px, 3vw, 16px); font-weight: 850; letter-spacing: .13em; }
+.kb-loader-bike { width: min(80vw, 248px); max-height: 28vh; object-fit: contain; }
+.kb-loader-progress { width: min(80vw, 235px); display: grid; gap: 8px; text-align: center; }
+.kb-loader-progress p { margin: 0; font-size: clamp(9px, 2.5vw, 11px); font-weight: 800; letter-spacing: .16em; }
+.kb-loader-progress [role="progressbar"] { height: 5px; overflow: hidden; border: 1px solid #8f692a; border-radius: 9px; background: #1b1308; }
+.kb-loader-progress span { display: block; width: 0; height: 100%; border-radius: 9px; background: linear-gradient(90deg, #b9852c, #f0c467, #ffe4a6); }
+@media (max-height: 480px) {
+    .kb-loader { padding-block: 14px; gap: 7px; }
+    .kb-loader-brand { gap: 6px; }
+    .kb-loader-brand img { width: 38px; }
+}
+@media print { .kb-loader { display: none !important; } }
+
+.kb-public-album { display: grid; grid-template-columns: repeat(auto-fit, minmax(128px, 1fr)); gap: 12px; }
+.kb-public-album img { width: 100%; height: min(40vw, 265px); object-fit: contain; background: #edf2f4; border-radius: 9px; }
+
+.login-container .logo-badge { object-fit: cover; border: 2px solid #f2b747; border-radius: 50%; transform: none; }

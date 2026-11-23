@@ -1,0 +1,332 @@
+
+/* ==========================================
+   KHAN BROTHERS
+   ADMIN PANEL - MAIN LAYOUT
+========================================== */
+
+
+/* 1. BODY */
+
+body {
+    font-family: var(--font-primary);
+    background: var(--color-background);
+    color: var(--color-text);
+    min-height: 100vh;
+}
+
+
+/* 2. MAIN APPLICATION LAYOUT */
+
+.app {
+    display: flex;
+    min-height: 100vh;
+}
+
+
+/* 3. SIDEBAR */
+
+.sidebar {
+    width: var(--sidebar-width);
+    min-width: var(--sidebar-width);
+    background: var(--color-sidebar);
+    color: var(--color-text-light);
+    padding: var(--spacing-6) var(--spacing-4);
+    display: flex;
+    flex-direction: column;
+}
+
+
+/* 4. BUSINESS BRAND */
+
+.brand {
+    font-size: var(--font-lg);
+    font-weight: var(--font-bold);
+    margin-bottom: var(--spacing-8);
+    color: white;
+}
+
+.brand span {
+    color: var(--color-secondary);
+}
+
+
+/* 5. MENU TITLES */
+
+.menu-title {
+    color: #94a3b8;
+    font-size: var(--font-xs);
+    font-weight: var(--font-semibold);
+    letter-spacing: 1px;
+    margin: var(--spacing-6) var(--spacing-3)
+             var(--spacing-3);
+}
+
+
+/* 6. SIDEBAR NAVIGATION */
+
+.sidebar nav {
+    flex: 1;
+}
+
+.sidebar nav a {
+    display: block;
+    padding: var(--spacing-3);
+    margin-bottom: var(--spacing-2);
+    border-radius: var(--radius-md);
+    color: #cbd5e1;
+    text-decoration: none;
+    font-size: var(--font-sm);
+    transition: var(--transition-fast);
+}
+
+.sidebar nav a:hover {
+    background: var(--color-primary-light);
+    color: white;
+}
+
+.sidebar nav a.active {
+    background: var(--color-primary-light);
+    color: white;
+    border-left: 3px solid var(--color-secondary);
+}
+
+
+/* 7. SIDEBAR FOOTER */
+
+.sidebar-footer {
+    margin-top: auto;
+    padding: var(--spacing-4) var(--spacing-2);
+    color: #94a3b8;
+    font-size: var(--font-xs);
+    line-height: 1.8;
+    border-top: 1px solid #34445a;
+}
+
+
+/* 8. MAIN CONTENT AREA */
+
+.main-area {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+
+/* 9. TOP HEADER */
+
+.topbar {
+    min-height: var(--header-height);
+    background: var(--color-surface);
+    padding: var(--spacing-4) var(--spacing-8);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--color-border);
+    box-shadow: var(--shadow-sm);
+}
+
+
+/* 10. HEADER TEXT */
+
+.topbar h1 {
+    color: var(--color-primary);
+    font-size: var(--font-xl);
+}
+
+.topbar p {
+    color: var(--color-text-muted);
+    font-size: var(--font-xs);
+    margin-bottom: var(--spacing-1);
+}
+
+
+/* 11. ADMIN PROFILE */
+
+.profile {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-3);
+}
+
+.profile strong {
+    color: var(--color-text);
+    font-size: var(--font-sm);
+}
+
+.profile small {
+    display: block;
+    color: var(--color-text-muted);
+    font-size: var(--font-xs);
+    margin-top: var(--spacing-1);
+}
+
+
+/* 12. PROFILE AVATAR */
+
+.avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: var(--radius-full);
+    background: var(--color-secondary-light);
+    color: var(--color-secondary-dark);
+    display: grid;
+    place-items: center;
+    font-weight: var(--font-bold);
+}
+
+
+/* 13. MAIN PAGE CONTENT */
+
+.content {
+    flex: 1;
+    padding: var(--spacing-8);
+}
+
+
+/* 14. WELCOME SECTION */
+
+.welcome {
+    background: linear-gradient(
+        135deg,
+        var(--color-primary),
+        var(--color-primary-light)
+    );
+
+    color: white;
+    padding: var(--spacing-8);
+    border-radius: var(--radius-xl);
+    margin-bottom: var(--spacing-8);
+    box-shadow: var(--shadow-md);
+}
+
+.welcome h2 {
+    font-size: var(--font-xl);
+    margin-bottom: var(--spacing-3);
+}
+
+.welcome p {
+    color: #dbeafe;
+    font-size: var(--font-sm);
+}
+
+
+/* 15. SECTION HEADINGS */
+
+.section-heading {
+    margin: var(--spacing-8) 0 var(--spacing-4);
+}
+
+.section-heading h2 {
+    color: var(--color-primary);
+    font-size: var(--font-lg);
+}
+
+.section-heading p {
+    color: var(--color-text-muted);
+    font-size: var(--font-sm);
+    margin-top: var(--spacing-1);
+}
+
+
+/* 16. FOOTER */
+
+.main-area > footer {
+    background: var(--color-surface);
+    color: var(--color-text-muted);
+    text-align: center;
+    padding: var(--spacing-5);
+    border-top: 1px solid var(--color-border);
+    font-size: var(--font-xs);
+}
+
+
+/* 17. RESPONSIVE DESIGN - TABLET */
+
+@media (max-width: 1000px) {
+
+    .sidebar {
+        width: 220px;
+        min-width: 220px;
+    }
+
+    .content {
+        padding: var(--spacing-5);
+    }
+
+}
+
+
+/* 18. RESPONSIVE DESIGN - MOBILE */
+
+@media (max-width: 700px) {
+
+    .app {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+        min-width: 0;
+        padding: var(--spacing-4);
+    }
+
+    .brand {
+        margin-bottom: var(--spacing-4);
+    }
+
+    .sidebar nav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--spacing-2);
+    }
+
+    .sidebar nav a {
+        margin-bottom: 0;
+    }
+
+    .menu-title {
+        width: 100%;
+    }
+
+    .sidebar-footer {
+        margin-top: var(--spacing-4);
+    }
+
+    .topbar {
+        padding: var(--spacing-4);
+    }
+
+    .content {
+        padding: var(--spacing-4);
+    }
+
+    .welcome {
+        padding: var(--spacing-5);
+    }
+
+}
+
+
+/* 19. SMALL MOBILE SCREENS */
+
+@media (max-width: 480px) {
+
+    .topbar h1 {
+        font-size: var(--font-lg);
+    }
+
+    .profile {
+        gap: var(--spacing-2);
+    }
+
+    .avatar {
+        width: 36px;
+        height: 36px;
+    }
+
+    .welcome h2 {
+        font-size: var(--font-lg);
+    }
+
+}

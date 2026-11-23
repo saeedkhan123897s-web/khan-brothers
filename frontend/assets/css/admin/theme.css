@@ -1,0 +1,129 @@
+:root {
+    color-scheme: light;
+    --admin-font: Inter, Arial, sans-serif;
+    --admin-ink: #203c4e;
+    --admin-heading: #173446;
+    --admin-muted: #526a7a;
+    --admin-border: #d7e4eb;
+    --admin-surface: #fff;
+    --admin-teal: #167d71;
+    --admin-teal-dark: #115a53;
+    --admin-mint: #83dfca;
+    --admin-gold: #f2b747;
+    --admin-field: #f8fbfc;
+    --admin-tint: #edf7f4;
+    --admin-card-radius: 16px;
+    --admin-card-shadow: 0 10px 26px #15354613;
+    --admin-sidebar-shadow: 12px 0 35px #102b4030;
+    --admin-sidebar-gradient: linear-gradient(180deg, #112636 0%, #143548 58%, #154d54 100%);
+    --admin-active-gradient: linear-gradient(90deg, #1c5c61, #204653);
+    --admin-brand-gradient: linear-gradient(135deg, #ffd879, #f2b747 65%, #e9a52f);
+    --admin-hero-gradient: radial-gradient(ellipse at 85% 115%, #f2c96b36, transparent 56%),
+        linear-gradient(113deg, #0f2c42, #154c53 61%, #2a7464);
+    --admin-table-gradient: linear-gradient(90deg, #17384b, #132d42);
+    --admin-row-hover: #f1f8f7;
+    --admin-content-gutter: clamp(16px, 3vw, 38px);
+}
+
+body:is(.dashboard-page, .admin-layout) {
+    min-height: 100vh;
+    color: var(--admin-ink);
+    background:
+        radial-gradient(ellipse at 93% 0%, #e5ae411c, transparent 40%),
+        radial-gradient(circle, #24526713 1px, transparent 1px),
+        #eff4f6;
+    background-size: auto, 24px 24px, auto;
+    font-family: var(--admin-font);
+}
+
+.admin-topbar {
+    position: sticky;
+    z-index: 30;
+    top: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px var(--admin-content-gutter);
+    border-bottom: 1px solid var(--admin-border);
+    background: rgba(255, 255, 255, .94);
+    box-shadow: 0 4px 20px #15354613;
+    backdrop-filter: blur(14px);
+}
+
+.admin-wordmark {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    gap: 11px;
+    color: var(--admin-gold);
+    font-size: 17px;
+    font-weight: 800;
+    letter-spacing: -.03em;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.admin-wordmark img {
+    width: 48px;
+    height: 48px;
+    flex: 0 0 48px;
+    border: 1px solid var(--admin-gold);
+    border-radius: 50%;
+    object-fit: cover;
+    box-shadow: 0 6px 18px #ab772b50;
+}
+
+.admin-wordmark strong { font-weight: inherit; }
+.admin-wordmark strong span { color: var(--admin-mint); }
+
+.admin-hero {
+    position: relative;
+    overflow: hidden;
+    padding: clamp(22px, 4vw, 44px);
+    border-radius: 22px;
+    color: #fff;
+    background: var(--admin-hero-gradient);
+    border: 1px solid #246061;
+    box-shadow: 0 20px 40px #15354613;
+}
+
+.admin-hero :is(h1, h2) {
+    margin: 0;
+    color: inherit;
+    font-size: clamp(23px, 4vw, 35px);
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -.035em;
+    overflow-wrap: anywhere;
+}
+
+.admin-hero :is(h1, h2)::after {
+    display: block;
+    width: 52px;
+    height: 4px;
+    margin-top: 12px;
+    border-radius: 10px;
+    background: var(--admin-gold);
+    content: "";
+}
+
+.admin-panel-title {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+}
+
+.admin-panel-title::before {
+    width: 5px;
+    height: 20px;
+    flex: 0 0 5px;
+    border-radius: 10px;
+    background: var(--admin-gold);
+    content: "";
+}
+
+@media (max-width: 800px) {
+    :root { --admin-content-gutter: 14px; }
+    .admin-topbar { padding-block: 12px; }
+    .admin-hero { padding: 22px 18px; border-radius: 16px; }
+}

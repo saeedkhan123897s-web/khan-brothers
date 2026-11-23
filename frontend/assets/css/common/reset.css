@@ -1,0 +1,95 @@
+
+/* ==========================================
+   KHAN BROTHERS
+   GLOBAL CSS RESET
+========================================== */
+
+
+/* 1. RESET ALL ELEMENTS */
+
+*,
+*::before,
+*::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+
+/* 2. HTML SETTINGS */
+
+html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+}
+
+
+/* 3. BODY SETTINGS */
+
+body {
+    min-height: 100vh;
+    line-height: 1.5;
+}
+
+
+/* 4. IMAGES AND MEDIA */
+
+img,
+picture,
+video,
+canvas,
+svg {
+    display: block;
+    max-width: 100%;
+}
+
+
+/* 5. FORM ELEMENTS */
+
+input,
+button,
+textarea,
+select {
+    font: inherit;
+}
+
+
+/* 6. BUTTON SETTINGS */
+
+button {
+    cursor: pointer;
+}
+
+
+/* 7. TEXTAREA SETTINGS */
+
+textarea {
+    resize: vertical;
+}
+
+
+/* 8. TABLE SETTINGS */
+
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+
+/* 9. LINK SETTINGS */
+
+a {
+    color: inherit;
+}
+
+
+/* 10. ACCESSIBILITY */
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+    outline: 2px solid #168568;
+    outline-offset: 3px;
+}

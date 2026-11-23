@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#0b0b0b">
+    <title>Khan Brothers | Motorcycle Business</title>
+    <link rel="icon" href="/kb.png" type="image/png">
+    <link rel="stylesheet" href="/style.css">
+    <script src="/kb-loader.js" defer></script>
+    <script src="/app.js" defer></script>
+</head>
+<body data-loader-logo="/kb.png">
+    <main id="signIn" class="sign-in" hidden>
+        <form id="loginForm" class="panel">
+            <img src="/kb.png" alt="Khan Brothers" width="64" height="64">
+            <h1>Staff sign-in</h1>
+            <label>Password<input name="password" type="password" autocomplete="current-password" required></label>
+            <button class="primary" type="submit">Sign in</button>
+            <p id="loginStatus" class="notice" role="status"></p>
+        </form>
+    </main>
+    <div id="workspace" class="workspace" hidden>
+        <button type="button" id="drawerBackdrop" class="drawer-backdrop" aria-label="Close navigation" hidden></button>
+        <aside id="sidebar" class="sidebar" aria-label="Main sidebar">
+            <a class="brand" href="#dashboard"><img src="/kb.png" alt="" width="46" height="46"><span>Khan<br>Brothers</span></a>
+            <button type="button" class="drawer-close" aria-label="Close navigation">×</button>
+            <nav id="navigation" aria-label="Main navigation"></nav>
+            <button type="button" id="signOut" class="sign-out">Sign out <span aria-hidden="true">↪</span></button>
+            <div class="resize" role="separator" tabindex="0" aria-label="Resize sidebar" aria-orientation="vertical"
+                aria-valuemin="178" aria-valuemax="392" aria-valuenow="232"></div>
+        </aside>
+        <div id="pageRegion" class="page-region">
+            <header class="topbar">
+                <button type="button" class="drawer-open" aria-controls="sidebar" aria-expanded="false" aria-label="Open navigation">☰</button>
+                <button type="button" id="collapse" class="collapse" aria-controls="sidebar" aria-expanded="true">Collapse sidebar</button>
+                <span id="breadcrumb">Dashboard</span>
+                <button type="button" id="refresh" class="refresh" aria-label="Refresh data" title="Refresh data">⟳</button>
+            </header>
+            <main class="content" id="mainContent">
+                <p id="status" class="notice" role="status"></p>
+                <div id="view"></div>
+            </main>
+        </div>
+    </div>
+    <dialog id="receipt" aria-labelledby="receiptTitle">
+        <header><h2 id="receiptTitle">Sale receipt</h2><form method="dialog"><button type="submit">Close</button></form></header>
+        <div id="receiptBody"></div>
+    </dialog>
+</body>
+</html>

@@ -1,0 +1,129 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="description" content="Explore motorcycle spare parts at Khan Brothers Motorcycle Workshop and Spare Parts, Swat.">
+
+    <title>Motorcycle Spare Parts | Khan Brothers - Swat</title>
+
+    <link rel="stylesheet" href="/assets/css/common/reset.css">
+    <link rel="stylesheet" href="/assets/css/common/variable.css">
+    <link rel="stylesheet" href="/assets/css/public/public.css">
+    <script src="/assets/js/common/helper.js" defer></script>
+    <script src="/assets/js/public/store.js" defer></script>
+    <link rel="icon" href="/assets/icons/image.png" type="image/png">
+    <link rel="stylesheet" href="/assets/css/common/kb-brand.css">
+    <script src="/assets/js/common/kb-loader.js" defer></script>
+</head>
+
+<body data-store-page="products">
+
+    <!-- Header -->
+    <header>
+
+        <h1>Khan Brothers</h1>
+
+        <p>Motorcycle Workshop & Spare Parts</p>
+
+        <p>Swat, Pakistan</p>
+
+
+        <!-- Navigation -->
+        <nav aria-label="Main Navigation">
+
+            <ul>
+
+                <li><a href="../index.html">Home</a></li>
+
+                <li><a href="about.html">About Us</a></li>
+
+                <li><a href="services.html">Services</a></li>
+
+                <li><a href="products.html">Spare Parts</a></li>
+                <li><a id="catalogueMotorcycles" href="products.html?product_type=motorcycle">Motorcycles</a></li>
+
+                <li><a href="contact.html">Contact</a></li>
+
+            
+                <li><a href="/pages/cart.html">Cart</a></li>
+                <li><a href="/pages/order-tracking.html">Track order</a></li>
+                <li><a href="/pages/login.html">Sign in</a></li>
+            </ul>
+
+        </nav>
+
+    </header>
+
+
+    <!-- Main Content -->
+    <main>
+
+
+        <!-- Hero Section -->
+        <section>
+
+            <h2 id="catalogueTitle">Our Motorcycle Spare Parts</h2>
+
+            <p id="catalogueDescription">
+                Explore our motorcycle spare parts catalogue.
+                Find the parts you need for your motorcycle.
+            </p>
+
+        </section>
+
+
+        <section>
+            <form id="catalogueFilters" class="store-filters" action="products.html" method="get">
+                <label>Search products <input type="search" name="search" maxlength="100" placeholder="Product, SKU or barcode"></label>
+                <label>Category <select name="category_id"><option value="">All categories</option></select></label>
+                <label id="catalogueCondition" hidden>Condition
+                    <select name="motorcycle_condition"><option value="">All motorcycles</option><option value="new">New</option><option value="used">Used</option></select>
+                </label>
+                <button type="submit">Search</button>
+                <a href="cart.html">View cart</a>
+            </form>
+            <div id="catalogueProducts" class="store-grid" aria-live="polite"></div>
+            <nav id="cataloguePages" class="store-pager" aria-label="Catalogue pagination"></nav>
+            <noscript><p>Enable JavaScript to browse the live catalogue.</p></noscript>
+        </section>
+
+        <section>
+
+            <h2 id="catalogueHelp">Need Help Finding a Part?</h2>
+
+            <p id="catalogueHelpText">
+                Contact Khan Brothers for spare parts
+                information and product availability.
+            </p>
+
+            <a href="contact.html">Contact Our Shop</a>
+
+        </section>
+
+
+    </main>
+
+
+    <!-- Footer -->
+    <footer>
+
+        <p>
+            &copy; 2026 Khan Brothers.
+            All Rights Reserved.
+        </p>
+
+        <p>
+            Motorcycle Workshop & Spare Parts
+            | Swat, Pakistan
+        </p>
+
+    </footer>
+
+</body>
+
+</html>

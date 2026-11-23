@@ -1,0 +1,191 @@
+
+/* =================================
+   1. BASIC SETTINGS
+================================= */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #101d32, #263f5e, #087f69);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+
+/* =================================
+   2. LOGIN CONTAINER
+================================= */
+
+.login-container {
+    background: #ffffff;
+    width: 100%;
+    max-width: 430px;
+    padding: 40px;
+    border-radius: 18px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+}
+
+
+/* =================================
+   3. LOGO & BRANDING
+================================= */
+
+.logo {
+    text-align: center;
+    font-size: 28px;
+    font-weight: bold;
+    color: #17243a;
+    margin-bottom: 12px;
+}
+
+.logo span {
+    color: #16a67a;
+}
+
+.subtitle {
+    text-align: center;
+    color: #8994a7;
+    font-size: 13px;
+    margin-bottom: 35px;
+}
+
+
+/* =================================
+   4. LOGIN HEADING
+================================= */
+
+.login-heading {
+    font-size: 25px;
+    color: #17243a;
+    margin-bottom: 8px;
+}
+
+.login-description {
+    color: #8994a7;
+    font-size: 13px;
+    line-height: 1.6;
+    margin-bottom: 28px;
+}
+
+
+/* =================================
+   5. FORM INPUTS
+================================= */
+
+.form-group {
+    margin-bottom: 22px;
+}
+
+label {
+    display: block;
+    color: #344054;
+    font-size: 13px;
+    font-weight: bold;
+    margin-bottom: 9px;
+}
+
+input {
+    width: 100%;
+    padding: 14px;
+    border: 1px solid #dce2ea;
+    border-radius: 9px;
+    outline: none;
+    font-size: 14px;
+    transition: 0.3s ease;
+}
+
+input:focus {
+    border-color: #16a67a;
+    box-shadow: 0 0 0 3px rgba(22, 166, 122, 0.12);
+}
+
+
+/* =================================
+   6. FORGOT PASSWORD
+================================= */
+
+.forgot-password {
+    display: block;
+    text-align: right;
+    color: #16a67a;
+    text-decoration: none;
+    font-size: 13px;
+    margin-top: 10px;
+}
+
+.forgot-password:hover {
+    text-decoration: underline;
+}
+
+
+/* =================================
+   7. LOGIN BUTTON
+================================= */
+
+.login-button {
+    width: 100%;
+    padding: 15px;
+    background: #172f4c;
+    color: white;
+    border: none;
+    border-radius: 9px;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: 0.3s ease;
+}
+
+.login-button:hover {
+    background: #16a67a;
+    transform: translateY(-2px);
+    box-shadow: 0 7px 18px rgba(22, 166, 122, 0.2);
+}
+
+
+/* =================================
+   8. SECURITY & FOOTER
+================================= */
+
+.security-note {
+    text-align: center;
+    color: #8994a7;
+    font-size: 12px;
+    margin-top: 25px;
+}
+
+.footer {
+    text-align: center;
+    color: #a0a9b6;
+    font-size: 11px;
+    margin-top: 25px;
+}
+
+
+/* =================================
+   9. MOBILE RESPONSIVE
+================================= */
+
+@media (max-width: 480px) {
+
+    .login-container {
+        padding: 28px 22px;
+    }
+
+    .logo {
+        font-size: 24px;
+    }
+
+    .login-heading {
+        font-size: 22px;
+    }
+
+}

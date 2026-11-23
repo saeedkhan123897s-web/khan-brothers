@@ -1,0 +1,376 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="description"
+        content="Create your customer account at Khan Brothers Motorcycle Workshop and Spare Parts, Swat."
+    >
+
+    <title>Customer Registration | Khan Brothers</title>
+
+    <link rel="stylesheet" href="/assets/css/common/reset.css">
+    <link rel="stylesheet" href="/assets/css/common/variable.css">
+    <link rel="stylesheet" href="/assets/css/public/public.css">
+    <script src="/assets/js/common/helper.js" defer></script>
+    <script src="/assets/js/public/store.js" defer></script>
+    <link rel="icon" href="/assets/icons/image.png" type="image/png">
+    <link rel="stylesheet" href="/assets/css/common/kb-brand.css">
+    <script src="/assets/js/common/kb-loader.js" defer></script>
+</head>
+
+<body data-store-page="register">
+
+    <!-- Header -->
+    <header>
+
+        <h1>Khan Brothers</h1>
+
+        <p>Motorcycle Workshop & Spare Parts</p>
+
+        <p>Swat, Pakistan</p>
+
+        <!-- Navigation -->
+        <nav aria-label="Main Navigation">
+
+            <ul>
+                <li><a href="../index.html">Home</a></li>
+                <li><a href="about.html">About Us</a></li>
+                <li><a href="services.html">Services</a></li>
+                <li><a href="products.html">Spare Parts</a></li>
+                <li><a href="cart.html">Shopping Cart</a></li>
+                <li><a href="contact.html">Contact</a></li>
+            </ul>
+
+        </nav>
+
+    </header>
+
+
+    <!-- Main Content -->
+    <main>
+
+        <!-- Registration Introduction -->
+        <section>
+
+            <h2>Create Your Customer Account</h2>
+
+            <p>
+                Join Khan Brothers to order motorcycle
+                spare parts and manage your purchases online.
+            </p>
+
+        </section>
+
+
+        <!-- Registration Form -->
+        <section>
+
+            <h2>Customer Registration Form</h2>
+
+            <form action="#" method="post">
+
+                <!-- Personal Information -->
+                <fieldset>
+
+                    <legend>Personal Information</legend>
+
+                    <div>
+
+                        <label for="full-name">
+                            Full Name:
+                        </label>
+
+                        <input
+                            type="text"
+                            id="full-name"
+                            name="full_name"
+                            placeholder="Enter your full name"
+                            autocomplete="name"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div>
+
+                        <label for="phone">
+                            Mobile Number:
+                        </label>
+
+                        <input
+                            type="tel"
+                            id="phone"
+                            name="phone"
+                            placeholder="Enter your mobile number"
+                            autocomplete="tel"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div>
+
+                        <label for="email">
+                            Email Address:
+                        </label>
+
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            placeholder="Enter your email address"
+                            autocomplete="email"
+                            required
+                        >
+
+                    </div>
+
+                </fieldset>
+
+
+                <!-- Address Information -->
+                <fieldset>
+
+                    <legend>Address Information</legend>
+
+                    <div>
+
+                        <label for="address">
+                            Complete Address:
+                        </label>
+
+                        <textarea
+                            id="address"
+                            name="address"
+                            rows="4"
+                            placeholder="Enter your complete address"
+                            autocomplete="street-address"
+                            required
+                        ></textarea>
+
+                    </div>
+
+
+                    <div>
+
+                        <label for="city">
+                            City / Tehsil:
+                        </label>
+
+                        <input
+                            type="text"
+                            id="city"
+                            name="city"
+                            placeholder="Enter your city or tehsil"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div>
+
+                        <label for="district">
+                            District:
+                        </label>
+
+                        <input
+                            type="text"
+                            id="district"
+                            name="district"
+                            placeholder="Enter your district"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div>
+
+                        <label for="province">
+                            Province:
+                        </label>
+
+                        <select
+                            id="province"
+                            name="province"
+                            required
+                        >
+
+                            <option value="">
+                                Select Province
+                            </option>
+
+                            <option value="Khyber Pakhtunkhwa">
+                                Khyber Pakhtunkhwa
+                            </option>
+
+                            <option value="Punjab">
+                                Punjab
+                            </option>
+
+                            <option value="Sindh">
+                                Sindh
+                            </option>
+
+                            <option value="Balochistan">
+                                Balochistan
+                            </option>
+
+                            <option value="Islamabad">
+                                Islamabad
+                            </option>
+
+                            <option value="Other">
+                                Other
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                </fieldset>
+
+
+                <!-- Account Information -->
+                <fieldset>
+
+                    <legend>Create Login Details</legend>
+
+                    <div>
+
+                        <label for="password">
+                            Password:
+                        </label>
+
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            placeholder="Create a password"
+                            autocomplete="new-password"
+                            minlength="8"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div>
+
+                        <label for="confirm-password">
+                            Confirm Password:
+                        </label>
+
+                        <input
+                            type="password"
+                            id="confirm-password"
+                            name="confirm_password"
+                            placeholder="Enter your password again"
+                            autocomplete="new-password"
+                            minlength="8"
+                            required
+                        >
+
+                    </div>
+
+                </fieldset>
+
+
+                <!-- Terms and Conditions -->
+                <section>
+
+                    <h3>Terms & Conditions</h3>
+
+                    <input
+                        type="checkbox"
+                        id="terms"
+                        name="terms"
+                        value="accepted"
+                        required
+                    >
+
+                    <label for="terms">
+                        I agree to the Terms and Conditions
+                        and Privacy Policy.
+                    </label>
+
+                </section>
+
+
+                <!-- Submit Button -->
+                <button type="submit">
+                    Create Account
+                </button>
+
+            </form>
+
+        </section>
+
+
+        <!-- Existing Customer -->
+        <section>
+
+            <h2>Already Have an Account?</h2>
+
+            <p>
+                Login to your existing customer account.
+            </p>
+
+            <a href="login.html">
+                Login Here
+            </a>
+
+        </section>
+
+
+        <!-- Customer Benefits -->
+        <section>
+
+            <h2>Your Account Benefits</h2>
+
+            <ul>
+
+                <li>Order Motorcycle Spare Parts Online</li>
+
+                <li>Track Your Orders</li>
+
+                <li>View Purchase History</li>
+
+                <li>Manage Your Delivery Address</li>
+
+                <li>Access Your Customer Account</li>
+
+            </ul>
+
+        </section>
+
+    </main>
+
+
+    <!-- Footer -->
+    <footer>
+
+        <p>
+            &copy; 2026 Khan Brothers.
+            All Rights Reserved.
+        </p>
+
+        <p>
+            Motorcycle Workshop & Spare Parts
+            | Swat, Pakistan
+        </p>
+
+    </footer>
+
+</body>
+
+</html>

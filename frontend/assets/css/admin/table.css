@@ -1,0 +1,280 @@
+
+/* ==========================================
+   KHAN BROTHERS
+   ADMIN PANEL - TABLE DESIGN
+========================================== */
+
+
+/* 1. TABLE WRAPPER */
+
+.table-container {
+    width: 100%;
+    overflow-x: auto;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    margin: var(--spacing-5) 0;
+}
+
+
+/* 2. MAIN TABLE */
+
+main table {
+    width: 100%;
+    min-width: 750px;
+    border-collapse: collapse;
+    background: var(--color-surface);
+    font-size: var(--font-sm);
+}
+
+
+/* 3. TABLE HEADER */
+
+main thead {
+    background: var(--color-primary);
+    color: white;
+}
+
+main th {
+    padding: 16px;
+    text-align: left;
+    font-size: var(--font-xs);
+    font-weight: var(--font-semibold);
+    white-space: nowrap;
+    border-bottom: 2px solid var(--color-secondary);
+}
+
+
+/* 4. TABLE BODY */
+
+main td {
+    padding: 15px 16px;
+    border-bottom: 1px solid var(--color-border);
+    color: var(--color-text);
+    white-space: nowrap;
+}
+
+
+/* 5. ALTERNATE ROW COLORS */
+
+main tbody tr:nth-child(even) {
+    background: var(--color-surface-light);
+}
+
+
+/* 6. ROW HOVER */
+
+main tbody tr:hover {
+    background: var(--color-secondary-light);
+    transition: var(--transition-fast);
+}
+
+
+/* 7. LAST ROW */
+
+main tbody tr:last-child td {
+    border-bottom: none;
+}
+
+
+/* 8. EMPTY TABLE MESSAGE */
+
+main td[colspan] {
+    text-align: center;
+    padding: 30px;
+    color: var(--color-text-muted);
+}
+
+
+/* 9. TABLE ACTION BUTTONS */
+
+main td button {
+    padding: 7px 12px;
+    margin: 2px;
+    font-size: var(--font-xs);
+    border-radius: var(--radius-sm);
+}
+
+
+/* 10. EDIT BUTTON */
+
+.btn-edit {
+    background: var(--color-info);
+    color: white;
+}
+
+.btn-edit:hover {
+    background: #2466a5;
+}
+
+
+/* 11. DELETE BUTTON */
+
+.btn-delete {
+    background: var(--color-danger);
+    color: white;
+}
+
+.btn-delete:hover {
+    background: #b83232;
+}
+
+
+/* 12. STATUS LABELS */
+
+.status {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: var(--radius-full);
+    font-size: var(--font-xs);
+    font-weight: var(--font-semibold);
+}
+
+
+/* 13. SUCCESS STATUS */
+
+.status--paid,
+.status--active,
+.status--completed,
+.status--in-stock {
+    background: var(--color-success-light);
+    color: var(--color-success);
+}
+
+
+/* 14. WARNING STATUS */
+
+.status--pending,
+.status--partial,
+.status--low-stock {
+    background: var(--color-warning-light);
+    color: #98620d;
+}
+
+
+/* 15. DANGER STATUS */
+
+.status--unpaid,
+.status--cancelled,
+.status--out-of-stock,
+.status--rejected {
+    background: var(--color-danger-light);
+    color: var(--color-danger);
+}
+
+
+/* 16. INFO STATUS */
+
+.status--processing,
+.status--dispatched,
+.status--approved {
+    background: var(--color-info-light);
+    color: var(--color-info);
+}
+
+
+/* 17. TABLE LINKS */
+
+main td a {
+    color: var(--color-info);
+    font-weight: var(--font-semibold);
+}
+
+main td a:hover {
+    color: var(--color-secondary-dark);
+    text-decoration: underline;
+}
+
+
+/* 18. TABLE SEARCH AREA */
+
+.table-filters {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--spacing-3);
+    margin-bottom: var(--spacing-5);
+}
+
+
+/* 19. TABLE PAGINATION */
+
+.pagination {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: var(--spacing-2);
+    margin-top: var(--spacing-5);
+}
+
+.pagination a {
+    padding: 8px 13px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    color: var(--color-primary);
+}
+
+.pagination a.active {
+    background: var(--color-primary);
+    color: white;
+}
+
+.pagination a:hover {
+    background: var(--color-secondary-light);
+}
+
+
+/* 20. TABLE SUMMARY */
+
+.table-summary {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: var(--spacing-4);
+    margin-bottom: var(--spacing-4);
+    color: var(--color-text-muted);
+    font-size: var(--font-sm);
+}
+
+
+/* 21. RESPONSIVE TABLE */
+
+@media (max-width: 768px) {
+
+    .table-container {
+        border-radius: var(--radius-md);
+    }
+
+    main table {
+        min-width: 700px;
+    }
+
+    main th,
+    main td {
+        padding: 12px;
+    }
+
+    .table-filters {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .pagination {
+        justify-content: center;
+    }
+
+}
+
+
+/* 22. SMALL MOBILE */
+
+@media (max-width: 480px) {
+
+    main th,
+    main td {
+        font-size: var(--font-xs);
+        padding: 10px;
+    }
+
+}

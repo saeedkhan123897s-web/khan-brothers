@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login | MotoCare ERP</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: Arial, sans-serif;
+            min-height: 100vh;
+            min-height: 100dvh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow: hidden;
+            background: linear-gradient(135deg, #0f2436 0%, #17384c 45%, #0e6259 100%);
+            position: relative;
+        }
+        body::before, body::after {
+            content: "";
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(60px);
+            opacity: .45;
+            pointer-events: none;
+        }
+        body::before { width: 320px; height: 320px; background: #f2b747; top: -80px; left: -80px; animation: float1 6s ease-in-out infinite; }
+        body::after { width: 380px; height: 380px; background: #16a67a; bottom: -100px; right: -80px; animation: float1 7s ease-in-out infinite reverse; }
+        @keyframes float1 { 0%,100%{ transform: translate(0,0) scale(1);} 50%{ transform: translate(30px,30px) scale(1.12);} }
+        .dots {
+            position: fixed; inset: 0;
+            background-image: radial-gradient(rgba(255,255,255,.12) 1px, transparent 1px);
+            background-size: 22px 22px;
+            pointer-events: none;
+        }
+        .bike-bg { position: fixed; left: 6%; top: 50%; transform: translateY(-50%) rotate(-8deg); font-size: 130px; opacity: .08; pointer-events: none; }
+
+        .login-container {
+            position: relative;
+            z-index: 2;
+            background: rgba(255,255,255,.98);
+            width: 100%;
+            max-width: 430px;
+            padding: 34px 38px 30px;
+            border-radius: 22px;
+            box-shadow: 0 30px 60px rgba(0,0,0,.45), 0 0 0 1px rgba(255,255,255,.25), 0 0 60px rgba(242,183,71,.15);
+            overflow: hidden;
+            animation: cardIn .6s ease both;
+        }
+        @keyframes cardIn { from { opacity:0; transform: translateY(24px) scale(.97);} to { opacity:1; transform: translateY(0) scale(1);} }
+        .login-container::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 5px;
+            background: linear-gradient(90deg,#147a6e,#7ee0c4,#f2b747);
+        }
+        .login-container::after {
+            content: "";
+            position: absolute;
+            right: -45px; bottom: -55px;
+            width: 140px; height: 140px;
+            border: 20px solid rgba(20,122,110,.06);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .logo-badge {
+            width: 56px; height: 56px;
+            margin: 0 auto 12px;
+            display: grid; place-items: center;
+            border-radius: 16px;
+            color: #203645;
+            background: linear-gradient(135deg,#ffd166,#f2b747 55%,#e69a1a);
+            font-size: 15px; font-weight: 800;
+            box-shadow: 0 10px 22px rgba(242,183,71,.5), inset 0 1px 0 rgba(255,255,255,.6);
+            transform: rotate(-3deg);
+        }
+        .logo {
+            text-align: center;
+            font-size: 27px;
+            font-weight: bold;
+            color: #17243a;
+            margin-bottom: 6px;
+            letter-spacing: -.02em;
+        }
+        .logo span { color: #16a67a; }
+        .subtitle {
+            text-align: center;
+            color: #8490a2;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+            margin-bottom: 26px;
+        }
+        .login-heading {
+            font-size: 24px;
+            color: #253047;
+            margin-bottom: 6px;
+            font-weight: 800;
+        }
+        .login-heading::after {
+            content: "";
+            display: block;
+            width: 44px; height: 4px;
+            margin-top: 9px;
+            background: #f2b747;
+            border-radius: 10px;
+        }
+        .login-description {
+            color: #8490a2;
+            font-size: 13px;
+            margin-bottom: 24px;
+            margin-top: 10px;
+            line-height: 1.5;
+        }
+
+        /* ===== FLOATING LABEL - DONO BOX SAME ===== */
+        .form-group { margin-bottom: 18px; }
+        .float-wrap {
+            position: relative;
+            margin-bottom: 18px;
+        }
+        .float-wrap input {
+            width: 100%;
+            padding: 18px 14px 10px 14px;
+            border: 1.5px solid #dce2ea;
+            border-radius: 12px;
+            outline: none;
+            font-size: 14px;
+            background: #f8fafc;
+            transition: .2s;
+            color: #253047;
+        }
+        .float-wrap input:focus {
+            border-color: #16a67a;
+            background: #fff;
+            box-shadow: 0 0 0 4px rgba(22,166,122,.14), 0 8px 18px rgba(22,166,122,.12);
+        }
+        .float-wrap label {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 14px;
+            color: #8490a2;
+            font-weight: 500;
+            pointer-events: none;
+            transition: .2s ease;
+            background: transparent;
+            padding: 0 4px;
+        }
+        /* Click karne ya likhne pe upar ho jaye */
+        .float-wrap input:focus + label,
+        .float-wrap input:not(:placeholder-shown) + label {
+            top: 0;
+            font-size: 11px;
+            font-weight: 700;
+            color: #16a67a;
+            background: #fff;
+        }
+        /* Password wale me eye ke liye jagah */
+        .float-wrap.password input { padding-right: 44px; }
+        .eye-btn {
+            position: absolute;
+            right: 8px; top: 50%;
+            transform: translateY(-50%);
+            width: 32px; height: 32px;
+            border: none; background: transparent;
+            cursor: pointer; font-size: 18px;
+            display: grid; place-items: center;
+            border-radius: 6px;
+            z-index: 2;
+        }
+        .eye-btn:hover { background: #eef6f3; }
+
+        .remember-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 4px;
+            cursor: pointer;
+            user-select: none;
+        }
+        .remember-row input {
+            width: 17px; height: 17px;
+            padding: 0; accent-color: #16a67a;
+            cursor: pointer; flex-shrink: 0;
+        }
+        .remember-row span {
+            font-size: 13px;
+            color: #344054;
+            font-weight: 500;
+        }
+
+        .login-button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg,#172f4c,#147a6e);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: .2s;
+            box-shadow: 0 12px 24px rgba(20,122,110,.35);
+            position: relative;
+            overflow: hidden;
+        }
+        .login-button::after {
+            content: "";
+            position: absolute;
+            top: 0; left: -80%;
+            width: 50%; height: 100%;
+            background: linear-gradient(100deg, transparent, rgba(255,255,255,.35), transparent);
+            transform: skewX(-20deg);
+            animation: shine 2.8s infinite;
+        }
+        @keyframes shine { 0%{ left: -80%; } 60%,100%{ left: 130%; } }
+        .login-button:hover {
+            background: linear-gradient(135deg,#f2b747,#e69a1a);
+            color: #203645;
+            transform: translateY(-2px);
+            box-shadow: 0 16px 28px rgba(242,183,71,.45);
+        }
+        .login-message {
+            margin-top: 15px;
+            padding: 11px 12px;
+            border-radius: 7px;
+            color: #b91c1c;
+            background: #fef2f2;
+            font-size: 13px;
+        }
+        .security-note {
+            text-align: center;
+            color: #8490a2;
+            font-size: 12px;
+            margin-top: 24px;
+            display: flex; align-items: center; justify-content: center; gap: 6px;
+        }
+        .security-note::before, .security-note::after {
+            content: ""; width: 28px; height: 1px; background: #e6ebf0;
+        }
+        .footer {
+            text-align: center;
+            color: #9aa4b2;
+            font-size: 11px;
+            margin-top: 14px;
+        }
+        @media (max-width:900px){ .bike-bg{ display:none; } }
+        @media (max-width:480px){
+            body{ padding: 12px; overflow: auto; }
+            .login-container{ padding: 28px 20px 22px; border-radius: 18px; }
+            .logo{ font-size: 23px; }
+        }
+    </style>
+    <link rel="icon" href="/assets/icons/image.png" type="image/png">
+    <link rel="stylesheet" href="/assets/css/common/kb-brand.css">
+    <script src="/assets/js/common/kb-loader.js" defer></script>
+</head>
+<body>
+    <div class="dots"></div>
+    <div class="bike-bg">🏍️</div>
+
+    <main class="login-container">
+        <img class="logo-badge" src="/assets/icons/image.png" alt="KB">
+        <div class="logo">Khan Brothers</div>
+        <p class="subtitle">Speed • Power • Performance</p>
+        <h1 class="login-heading">
+            Welcome Back!
+        </h1>
+        <p class="login-description">
+            Please enter your account details to continue.
+        </p>
+        <form id="loginForm">
+            <!-- EMAIL - FLOATING LABEL -->
+            <div class="float-wrap">
+                <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    placeholder=" "
+                    required
+                    autocomplete="email"
+                >
+                <label for="email">Email Address</label>
+            </div>
+
+            <!-- PASSWORD - FLOATING LABEL - SAME STYLE -->
+            <div class="float-wrap password">
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    placeholder=" "
+                    required
+                    autocomplete="current-password"
+                >
+                <label for="password">Password</label>
+                <button type="button" class="eye-btn" id="eyeBtn" title="Show / Hide password">👁️</button>
+            </div>
+
+            <label class="remember-row">
+                <input type="checkbox" id="rememberMe" name="rememberMe">
+                <span>Remember Me</span>
+            </label>
+
+            <button type="submit" class="login-button">
+                Sign In
+            </button>
+            <p class="login-message" id="loginMessage" role="alert" aria-live="polite" hidden></p>
+        </form>
+        <p class="security-note">
+            🔒 Authorized employees only
+        </p>
+        <footer class="footer">
+            © 2026 khan brothers. All rights reserved.
+        </footer>
+    </main>
+
+    <script>
+      const eyeBtn = document.getElementById('eyeBtn');
+      const passInput = document.getElementById('password');
+      const emailInput = document.getElementById('email');
+      const rememberMe = document.getElementById('rememberMe');
+      const loginForm = document.getElementById('loginForm');
+      eyeBtn.addEventListener('click', () => {
+        if(passInput.type === 'password'){
+          passInput.type = 'text';
+          eyeBtn.textContent = '🙈';
+        } else {
+          passInput.type = 'password';
+          eyeBtn.textContent = '👁️';
+        }
+      });
+      const savedEmail = localStorage.getItem('savedEmail');
+      if(savedEmail){
+        emailInput.value = savedEmail;
+        rememberMe.checked = true;
+      }
+      loginForm.addEventListener('submit', () => {
+        if(rememberMe.checked){
+          localStorage.setItem('savedEmail', emailInput.value.trim());
+        } else {
+          localStorage.removeItem('savedEmail');
+        }
+      });
+    </script>
+    <script src="/assets/js/admin/login.js" defer></script>
+</body>
+</html>

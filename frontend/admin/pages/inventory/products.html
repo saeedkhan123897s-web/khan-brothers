@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Product catalogue and live stock levels for Khan Brothers.">
+    <title>Inventory | Khan Brothers</title>
+    <link rel="stylesheet" href="/assets/css/admin/inventory.css">
+    <script src="/assets/js/common/helper.js" defer></script>
+    <script src="/assets/js/admin/app.js" defer></script>
+    <script src="/assets/js/admin/inventory.js" defer></script>
+    <link rel="icon" href="/assets/icons/image.png" type="image/png">
+    <link rel="stylesheet" href="/assets/css/common/kb-brand.css">
+    <script src="/assets/js/common/kb-loader.js" defer></script>
+</head>
+<body class="inventory-page" data-page="inventory-products">
+
+    <main class="inventory-main">
+        <section class="inventory-hero admin-hero">
+            <div>
+                <p class="inventory-eyebrow">PRODUCT CATALOGUE &amp; STOCK</p>
+                <h1>Inventory</h1>
+                <p>View product availability, spot low stock and keep your spare-parts catalogue current.</p>
+            </div>
+            <div class="inventory-hero__actions">
+                <a class="inventory-button inventory-button--primary" id="addProduct" href="add-product.html" hidden>+ Add product</a>
+                <a class="inventory-button inventory-button--primary" id="addMotorcycle" href="add-product.html?product_type=motorcycle" hidden>+ Add motorcycle</a>
+            </div>
+        </section>
+
+        <section class="inventory-stats" aria-label="Inventory summary">
+            <article class="inventory-stat"><span>Products</span><strong id="inventoryProductCount">—</strong><small>Matching product records</small></article>
+            <article class="inventory-stat"><span>Stock units</span><strong id="inventoryUnitCount">—</strong><small>Across loaded products</small></article>
+            <article class="inventory-stat"><span>Low stock</span><strong id="inventoryLowStock">—</strong><small>On this page</small></article>
+            <article class="inventory-stat inventory-stat--value"><span>Retail value</span><strong id="inventoryRetailValue">PKR 0.00</strong><small>Loaded product stock</small></article>
+        </section>
+
+        <section class="inventory-panel">
+            <div class="inventory-panel__heading">
+                <div><h2 class="admin-panel-title">Products</h2><p>Search by product name, SKU or barcode.</p></div>
+                <button class="inventory-icon-button" id="refreshInventory" type="button" aria-label="Refresh inventory">↻</button>
+            </div>
+            <form class="inventory-filters" id="inventoryFilters">
+                <label class="inventory-search">Search
+                    <input id="inventorySearch" type="search" maxlength="100" placeholder="Name, SKU or barcode">
+                </label>
+                <label>Product type
+                    <select id="inventoryProductType"><option value="">All products</option><option value="part">Spare parts</option><option value="motorcycle">Motorcycles</option></select>
+                </label>
+                <label>Category
+                    <select id="inventoryCategory"><option value="">All categories</option></select>
+                </label>
+                <label>Stock level
+                    <select id="inventoryStockStatus"><option value="">All stock</option><option value="in_stock">In stock</option><option value="low_stock">Low stock</option><option value="out_of_stock">Out of stock</option><option value="overstocked">Overstocked</option></select>
+                </label>
+                <button class="inventory-button inventory-button--primary" type="submit">Apply filters</button>
+            </form>
+            <div class="inventory-table-wrap">
+                <table class="inventory-table">
+                    <thead><tr><th>Product</th><th>Category</th><th>Stock</th><th>Location</th><th>Price</th><th>Stock value</th><th>Status</th></tr></thead>
+                    <tbody id="inventoryRows"><tr><td class="inventory-empty" colspan="7">Loading inventory…</td></tr></tbody>
+                </table>
+            </div>
+            <div class="inventory-pagination" id="inventoryPagination" aria-live="polite"></div>
+        </section>
+    </main>
+
+    <footer class="inventory-footer"><span>© 2026 Khan Brothers</span><span>Motorcycle Workshop &amp; Spare Parts · Swat, Pakistan</span></footer>
+</body>
+</html>

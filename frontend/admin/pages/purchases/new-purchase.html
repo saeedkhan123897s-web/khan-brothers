@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Create a supplier purchase order and record stock costs.">
+    <title>New Purchase | Khan Brothers</title>
+    <link rel="stylesheet" href="/assets/css/admin/purchases.css">
+    <script src="/assets/js/common/helper.js" defer></script>
+    <script src="/assets/js/admin/app.js" defer></script>
+    <script src="/assets/js/admin/purchases.js" defer></script>
+    <link rel="icon" href="/assets/icons/image.png" type="image/png">
+    <link rel="stylesheet" href="/assets/css/common/kb-brand.css">
+    <script src="/assets/js/common/kb-loader.js" defer></script>
+</head>
+<body class="purchase-page" data-page="new-purchase">
+
+    <main class="purchase-main">
+        <section class="purchase-hero purchase-hero--compact admin-hero">
+            <div><p class="purchase-eyebrow">PURCHASING · NEW ORDER</p><h1>Create purchase</h1><p>Record supplier costs now; receive the goods when they arrive.</p></div>
+            <a class="purchase-button purchase-button--quiet" href="purchase-list.html">← Back to purchases</a>
+        </section>
+
+        <form class="purchase-panel purchase-form" id="newPurchaseForm" novalidate>
+            <section class="purchase-form-section">
+                <div class="purchase-panel__heading"><div><h2 class="admin-panel-title">Supplier and items</h2><p>Choose a supplier and add the products being ordered.</p></div></div>
+                <div class="purchase-form-grid purchase-form-grid--meta">
+                    <label>Supplier
+                        <select id="purchaseSupplier" name="supplier_id"><option value="">No linked supplier</option></select>
+                    </label>
+                    <label>Supplier name (optional)
+                        <input id="purchaseSupplierName" type="text" maxlength="100" placeholder="Enter supplier name">
+                    </label>
+                    <label>Purchase date
+                        <input id="purchaseDate" type="date" readonly>
+                    </label>
+                </div>
+
+                <div class="purchase-item-picker">
+                    <label class="purchase-item-picker__search">Find product
+                        <input id="productSearch" type="search" maxlength="100" placeholder="Search by product name or SKU">
+                        <small id="purchaseProductResults" role="status"></small>
+                    </label>
+                    <label>Product type
+                        <select id="purchaseProductType"><option value="">All products</option><option value="part">Spare parts</option><option value="motorcycle">Motorcycles</option></select>
+                    </label>
+                    <label>Product
+                        <select id="purchaseProduct"><option value="">Choose a product</option></select>
+                    </label>
+                    <label>Quantity
+                        <input id="purchaseQuantity" type="number" min="1" step="1" value="1" inputmode="numeric">
+                    </label>
+                    <label>Unit cost (PKR)
+                        <input id="purchaseCost" type="number" min="0" step="0.01" placeholder="0.00" inputmode="decimal">
+                    </label>
+                    <button class="purchase-button purchase-button--primary" id="addPurchaseItem" type="button">Add item</button>
+                </div>
+
+                <div class="purchase-table-wrap">
+                    <table class="purchase-table purchase-table--items">
+                        <thead><tr><th>Product</th><th>SKU</th><th>Qty</th><th>Unit cost</th><th>Line total</th><th></th></tr></thead>
+                        <tbody id="purchaseItemRows"><tr><td class="purchase-empty" colspan="6">Add products to this purchase.</td></tr></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <div class="purchase-form-bottom">
+                <section class="purchase-form-section purchase-form-section--notes">
+                    <h2>Notes</h2>
+                    <label for="purchaseNotes">Supplier reference or delivery notes</label>
+                    <textarea id="purchaseNotes" rows="4" maxlength="2000" placeholder="Add details for this order"></textarea>
+                </section>
+
+                <section class="purchase-form-section purchase-totals">
+                    <h2>Payment and totals</h2>
+                    <label>Discount (PKR)<input id="purchaseDiscount" type="number" min="0" step="0.01" value="0"></label>
+                    <label>Shipping (PKR)<input id="purchaseShipping" type="number" min="0" step="0.01" value="0"></label>
+                    <label>Amount paid now<input id="purchasePaid" type="number" min="0" step="0.01" value="0"></label>
+                    <label>Payment method
+                        <select id="purchaseMethod"><option value="credit">Credit</option><option value="cash">Cash</option><option value="bank_transfer">Bank transfer</option><option value="card">Card</option></select>
+                    </label>
+                    <div class="purchase-total-line"><span>Subtotal</span><strong id="purchaseSubtotal">PKR 0.00</strong></div>
+                    <div class="purchase-total-line purchase-total-line--grand"><span>Order total</span><strong id="purchaseTotal">PKR 0.00</strong></div>
+                    <div class="purchase-total-line"><span>Balance due</span><strong id="purchaseBalance">PKR 0.00</strong></div>
+                </section>
+            </div>
+
+            <div class="purchase-form-actions">
+                <p id="purchaseFormMessage" class="purchase-form-message" aria-live="polite"></p>
+                <div><a class="purchase-button purchase-button--quiet" href="purchase-list.html">Cancel</a><button class="purchase-button purchase-button--primary" id="savePurchase" type="submit">Save purchase order</button></div>
+            </div>
+        </form>
+    </main>
+    <div class="purchase-toast" id="purchaseToast" role="status" aria-live="polite"></div>
+    <footer class="purchase-footer"><span>© 2026 Khan Brothers</span><span>Motorcycle Workshop &amp; Spare Parts · Swat, Pakistan</span></footer>
+</body>
+</html>

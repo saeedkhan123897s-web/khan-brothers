@@ -1,0 +1,183 @@
+
+/* ==========================================
+   KHAN BROTHERS
+   MOTORCYCLE WORKSHOP & SPARE PARTS
+   GLOBAL DESIGN VARIABLES
+========================================== */
+
+
+/* ==========================================
+   1. BRAND COLORS
+========================================== */
+
+:root {
+
+    /* Primary Brand Colors */
+
+    --color-primary: #172f4c;
+    --color-primary-dark: #102238;
+    --color-primary-light: #294766;
+
+    /* Secondary Colors */
+
+    --color-secondary: #168568;
+    --color-secondary-dark: #10664f;
+    --color-secondary-light: #e5f5ef;
+
+    /* Accent Color */
+
+    --color-accent: #f0a83b;
+
+
+    /* ======================================
+       2. BACKGROUND COLORS
+    ====================================== */
+
+    --color-background: #f4f6fa;
+    --color-surface: #ffffff;
+    --color-surface-light: #f8fafc;
+    --color-sidebar: #17243a;
+
+
+    /* ======================================
+       3. TEXT COLORS
+    ====================================== */
+
+    --color-text: #253047;
+    --color-text-dark: #17243a;
+    --color-text-muted: #8490a2;
+    --color-text-light: #ffffff;
+
+
+    /* ======================================
+       4. STATUS COLORS
+    ====================================== */
+
+    --color-success: #16a36f;
+    --color-success-light: #e5f7ef;
+
+    --color-warning: #e9a23b;
+    --color-warning-light: #fff5df;
+
+    --color-danger: #dc4545;
+    --color-danger-light: #fdecec;
+
+    --color-info: #3182ce;
+    --color-info-light: #e8f2fc;
+
+
+    /* ======================================
+       5. BORDER COLORS
+    ====================================== */
+
+    --color-border: #e2e8f0;
+    --color-border-dark: #cbd5e1;
+
+
+    /* ======================================
+       6. FONT FAMILY
+    ====================================== */
+
+    --font-primary: Arial, Helvetica, sans-serif;
+
+    --font-secondary: Georgia, serif;
+
+
+    /* ======================================
+       7. FONT SIZES
+    ====================================== */
+
+    --font-xs: 12px;
+    --font-sm: 14px;
+    --font-base: 16px;
+    --font-md: 18px;
+    --font-lg: 20px;
+    --font-xl: 24px;
+    --font-2xl: 30px;
+    --font-3xl: 36px;
+
+
+    /* ======================================
+       8. FONT WEIGHTS
+    ====================================== */
+
+    --font-normal: 400;
+    --font-medium: 500;
+    --font-semibold: 600;
+    --font-bold: 700;
+
+
+    /* ======================================
+       9. SPACING
+    ====================================== */
+
+    --spacing-1: 4px;
+    --spacing-2: 8px;
+    --spacing-3: 12px;
+    --spacing-4: 16px;
+    --spacing-5: 20px;
+    --spacing-6: 24px;
+    --spacing-8: 32px;
+    --spacing-10: 40px;
+    --spacing-12: 48px;
+    --spacing-16: 64px;
+
+
+    /* ======================================
+       10. BORDER RADIUS
+    ====================================== */
+
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-xl: 16px;
+    --radius-2xl: 20px;
+    --radius-full: 9999px;
+
+
+    /* ======================================
+       11. BOX SHADOWS
+    ====================================== */
+
+    --shadow-sm: 0 2px 5px rgba(0, 0, 0, 0.05);
+
+    --shadow-md: 0 5px 15px rgba(0, 0, 0, 0.08);
+
+    --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.12);
+
+
+    /* ======================================
+       12. LAYOUT DIMENSIONS
+    ====================================== */
+
+    --sidebar-width: 250px;
+
+    --header-height: 70px;
+
+    --container-width: 1200px;
+
+
+    /* ======================================
+       13. TRANSITIONS
+    ====================================== */
+
+    --transition-fast: 0.2s ease;
+
+    --transition-normal: 0.3s ease;
+
+    --transition-slow: 0.5s ease;
+
+
+    /* ======================================
+       14. LAYER / Z-INDEX
+    ====================================== */
+
+    --z-dropdown: 100;
+
+    --z-sticky: 200;
+
+    --z-modal: 500;
+
+    --z-notification: 600;
+
+}

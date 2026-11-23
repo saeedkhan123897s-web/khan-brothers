@@ -1,0 +1,1178 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Account.js Testing | Khan Brothers</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            margin: 0;
+            padding: 25px;
+            background: #f1f5f9;
+            color: #1e293b;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: auto;
+        }
+
+        .header {
+            background: #172554;
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            margin: 0 0 8px;
+            font-size: 23px;
+        }
+
+        .header p {
+            margin: 0;
+            font-size: 13px;
+            color: #bfdbfe;
+        }
+
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .summary-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 18px;
+        }
+
+        .summary-card span {
+            display: block;
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        .summary-card h2 {
+            margin: 10px 0 0;
+            font-size: 25px;
+        }
+
+        .test-section {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            margin-bottom: 20px;
+        }
+
+        .test-section h2 {
+            font-size: 17px;
+            margin: 0 0 15px;
+        }
+
+        .test-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            padding: 13px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .test-item:last-child {
+            border-bottom: none;
+        }
+
+        .test-name {
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .test-detail {
+            font-size: 11px;
+            color: #64748b;
+            margin-top: 5px;
+        }
+
+        .badge {
+            padding: 6px 11px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        .pass {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .fail {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        button {
+            padding: 12px 18px;
+            border: none;
+            border-radius: 8px;
+            background: #1e40af;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            margin-right: 8px;
+        }
+
+        button:hover {
+            opacity: .9;
+        }
+
+        .secondary {
+            background: #e2e8f0;
+            color: #1e293b;
+        }
+
+        .message {
+            padding: 14px;
+            background: #eff6ff;
+            color: #1e40af;
+            border-radius: 8px;
+            font-size: 12px;
+            line-height: 1.6;
+            margin-top: 15px;
+        }
+
+        .success-message {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .error-message {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 12px;
+            }
+
+            .summary {
+                grid-template-columns: 1fr;
+            }
+
+            .test-item {
+                align-items: flex-start;
+            }
+
+            .header h1 {
+                font-size: 19px;
+            }
+        }
+    </style>
+    <link rel="icon" href="/assets/icons/image.png" type="image/png">
+    <link rel="stylesheet" href="/assets/css/common/kb-brand.css">
+    <script src="/assets/js/common/kb-loader.js" defer></script>
+</head>
+
+<body>
+
+<div class="container">
+
+    <header class="header">
+        <h1>Account.js Testing Center</h1>
+        <p>Khan Brothers Motorcycle Workshop & Spare Parts – Swat</p>
+    </header>
+
+
+    <!-- SUMMARY -->
+
+    <section class="summary">
+
+        <div class="summary-card">
+            <span>Total Tests</span>
+            <h2 id="totalTests">0</h2>
+        </div>
+
+        <div class="summary-card">
+            <span>Passed</span>
+            <h2 id="passedTests" style="color:#15803d;">0</h2>
+        </div>
+
+        <div class="summary-card">
+            <span>Failed</span>
+            <h2 id="failedTests" style="color:#dc2626;">0</h2>
+        </div>
+
+    </section>
+
+
+    <!-- BUTTONS -->
+
+    <section class="test-section">
+
+        <h2>Run Account.js Tests</h2>
+
+        <button onclick="runAllTests()">
+            ▶ Run All Tests
+        </button>
+
+        <button class="secondary" onclick="location.reload()">
+            Reset
+        </button>
+
+        <div id="testMessage" class="message">
+            Click "Run All Tests" to start testing.
+        </div>
+
+    </section>
+
+
+    <!-- TEST RESULTS -->
+
+    <section class="test-section">
+
+        <h2>Test Results</h2>
+
+        <div id="testResults">
+            <p style="font-size:12px;color:#64748b;">
+                No tests have been executed yet.
+            </p>
+        </div>
+
+    </section>
+
+
+    <!-- LIBRARY INFORMATION -->
+
+    <section class="test-section">
+
+        <h2>Account Library Information</h2>
+
+        <div id="libraryInfo">
+            <p style="font-size:12px;color:#64748b;">
+                Waiting for account.js...
+            </p>
+        </div>
+
+    </section>
+
+</div>
+
+
+<!-- Load account.js first -->
+
+<script src="/assets/js/admin/account.js"></script>
+
+
+<script>
+
+    "use strict";
+
+
+    // ==========================================
+    // TEST HELPERS
+    // ==========================================
+
+    let results = [];
+
+    function assert(condition, message) {
+
+        if (!condition) {
+            throw new Error(message);
+        }
+
+    }
+
+
+    function addTest(name, callback) {
+
+        try {
+
+            callback();
+
+            results.push({
+                name: name,
+                status: "PASS",
+                detail: "Test completed successfully."
+            });
+
+        } catch (error) {
+
+            results.push({
+                name: name,
+                status: "FAIL",
+                detail: error.message
+            });
+
+        }
+
+    }
+
+
+    // ==========================================
+    // MAIN TEST RUNNER
+    // ==========================================
+
+    function runAllTests() {
+
+        results = [];
+
+        const accounting = window.KHAN_ACCOUNTING;
+
+
+        // --------------------------------------
+        // TEST 1: LIBRARY EXISTS
+        // --------------------------------------
+
+        addTest("Account library loaded", function() {
+
+            assert(
+                accounting !== undefined,
+                "KHAN_ACCOUNTING library was not found."
+            );
+
+        });
+
+
+        if (!accounting) {
+
+            renderResults();
+
+            document.getElementById("testMessage").textContent =
+                "account.js load nahi hui. File path check karein.";
+
+            document.getElementById("testMessage")
+                .className = "message error-message";
+
+            return;
+
+        }
+
+
+        // --------------------------------------
+        // TEST 2: VERSION
+        // --------------------------------------
+
+        addTest("Library version", function() {
+
+            assert(
+                accounting.version === "1.0.0",
+                "Incorrect library version."
+            );
+
+        });
+
+
+        // --------------------------------------
+        // TEST 3: CURRENCY
+        // --------------------------------------
+
+        addTest("Currency is PKR", function() {
+
+            assert(
+                accounting.currency === "PKR",
+                "Currency should be PKR."
+            );
+
+        });
+
+
+        // --------------------------------------
+        // TEST 4: ACCOUNT DATA
+        // --------------------------------------
+
+        addTest("Accounts available", function() {
+
+            const allAccounts = accounting.getAllAccounts();
+
+            assert(
+                Array.isArray(allAccounts) && allAccounts.length > 0,
+                "No account records found."
+            );
+
+        });
+
+
+        // --------------------------------------
+        // TEST 5: UNIQUE ACCOUNT CODES
+        // --------------------------------------
+
+        addTest("Account codes are unique", function() {
+
+            const allAccounts = accounting.getAllAccounts();
+
+            const codes = allAccounts.map(account => account.code);
+
+            const uniqueCodes = new Set(codes);
+
+            assert(
+                codes.length === uniqueCodes.size,
+                "Duplicate account codes detected."
+            );
+
+        });
+
+
+        // --------------------------------------
+        // TEST 6: FIVE ACCOUNT TYPES
+        // --------------------------------------
+
+        addTest("All five account types exist", function() {
+
+            const requiredTypes = [
+                "Asset",
+                "Liability",
+                "Equity",
+                "Income",
+                "Expense"
+            ];
+
+            requiredTypes.forEach(type => {
+
+                const found =
+                    accounting.getAccountsByType(type);
+
+                assert(
+                    found.length > 0,
+                    "Missing account type: " + type
+                );
+
+            });
+
+        });
+
+
+        // --------------------------------------
+        // TEST 7: CASH ACCOUNT
+        // --------------------------------------
+
+        addTest("Cash in Hand account exists", function() {
+
+            const account =
+                accounting.getAccountByCode("1000");
+
+            assert(
+                account !== null &&
+                account.name === "Cash in Hand",
+                "Cash in Hand account not found."
+            );
+
+        });
+
+
+        // --------------------------------------
+        // TEST 8: RECEIVABLE ACCOUNT
+        // --------------------------------------
+
+        addTest("Accounts Receivable exists", function() {
+
+            const account =
+                accounting.getAccountByCode("1200");
+
+            assert(
+                account !== null &&
+                account.type === "Asset" &&
+                account.controlAccount === true,
+                "Accounts Receivable is incorrectly configured."
+            );
+
+        });
+
+
+        // --------------------------------------
+        // TEST 9: PAYABLE ACCOUNT
+        // --------------------------------------
+
+        addTest("Accounts Payable exists", function() {
+
+            const account =
+                accounting.getAccountByCode("2000");
+
+            assert(
+                account !== null &&
+                account.type === "Liability",
+                "Accounts Payable is incorrectly configured."
+            );
+
+        });
+
+
+        // --------------------------------------
+        // TEST 10: CAPITAL ACCOUNT
+        // --------------------------------------
+
+        addTest("Owner Capital exists", function() {
+
+            const account =
+                accounting.getAccountByCode("3000");
+
+            assert(
+                account !== null &&
+                account.type === "Equity",
+                "Owner Capital account not found."
+            );
+
+        });
+
+
+        // --------------------------------------
+        // TEST 11: SALES ACCOUNT
+        // --------------------------------------
+
+        addTest("Sales Revenue exists", function() {
+
+            const account =
+                accounting.getAccountByCode("4000");
+
+            assert(
+                account !== null &&
+                account.type === "Income",
+                "Sales Revenue account not found."
+            );
+
+        });
+
+
+        // --------------------------------------
+        // TEST 12: EXPENSE ACCOUNT
+        // --------------------------------------
+
+        addTest("Rent Expense exists", function() {
+
+            const account =
+                accounting.getAccountByCode("5300");
+
+            assert(
+                account !== null &&
+                account.type === "Expense",
+                "Rent Expense account not found."
+            );
+
+        });
+
+
+        // --------------------------------------
+        // TEST 13: SEARCH ACCOUNT
+        // --------------------------------------
+
+        addTest("Account search works", function() {
+
+            const found = accounting.searchAccounts("Receivable");
+
+            assert(
+                found.some(account =>
+                    account.name.includes("Receivable")
+                ),
+                "Receivable search returned no results."
+            );
+
+        });
+
+
+        // --------------------------------------
+        // TEST 14: GET ACCOUNTS BY TYPE
+        // --------------------------------------
+
+        addTest("Get accounts by type", function() {
+
+            const assets =
+                accounting.getAccountsByType("Asset");
+
+            assert(
+                assets.length > 0 &&
+                assets.every(account => account.type === "Asset"),
+                "Asset filter is not working."
+            );
+
+        });
+
+
+        // --------------------------------------
+        // TEST 15: ACCOUNT CATEGORY SEARCH
+        // --------------------------------------
+
+        addTest("Get accounts by category", function() {
+
+            const found =
+                accounting.getAccountsByCategory("Current Assets");
+
+            assert(
+                found.length > 0 &&
+                found.every(account =>
+                    account.category === "Current Assets"
+                ),
+                "Category filter failed."
+            );
+
+        });
+
+
+        // --------------------------------------
+        // TEST 16: VALID ACCOUNT TYPE
+        // --------------------------------------
+
+        addTest("Account type validation", function() {
+
+            assert(
+                accounting.isValidAccountType("Asset"),
+                "Valid Asset type was rejected."
+            );
+
+            assert(
+                !accounting.isValidAccountType("Unknown"),
+                "Invalid account type was accepted."
+            );
+
+        });
+
+
+        // --------------------------------------
+        // TEST 17: VALID JOURNAL
+        // --------------------------------------
+
+        addTest("Balanced journal accepted", function() {
+
+            const journal = [
+
+                {
+                    accountCode: "1000",
+                    debitPaisa: 100000,
+                    creditPaisa: 0
+                },
+
+                {
+                    accountCode: "3000",
+                    debitPaisa: 0,
+                    creditPaisa: 100000
+                }
+
+            ];
+
+            const result =
+                accounting.validateJournal(journal);
+
+            assert(
+                result.valid === true,
+                result.message
+            );
+
+            assert(
+                result.totalDebit === 100000 &&
+                result.totalCredit === 100000,
+                "Journal totals are incorrect."
+            );
+
+        });
+
+
+        // --------------------------------------
+        // TEST 18: UNBALANCED JOURNAL REJECTED
+        // --------------------------------------
+
+        addTest("Unbalanced journal rejected", function() {
+
+            const journal = [
+
+                {
+                    accountCode: "1000",
+                    debitPaisa: 100000,
+                    creditPaisa: 0
+                },
+
+                {
+                    accountCode: "3000",
+                    debitPaisa: 0,
+                    creditPaisa: 50000
+                }
+
+            ];
+
+            const result =
+                accounting.validateJournal(journal);
+
+            assert(
+                result.valid === false,
+                "Unbalanced journal was incorrectly accepted."
+            );
+
+        });
+
+
+        // --------------------------------------
+        // TEST 19: INVALID ACCOUNT REJECTED
+        // --------------------------------------
+
+        addTest("Unknown account rejected", function() {
+
+            const journal = [
+
+                {
+                    accountCode: "9999",
+                    debitPaisa: 10000,
+                    creditPaisa: 0
+                },
+
+                {
+                    accountCode: "3000",
+                    debitPaisa: 0,
+                    creditPaisa: 10000
+                }
+
+            ];
+
+            const result =
+                accounting.validateJournal(journal);
+
+            assert(
+                result.valid === false,
+                "Unknown account was accepted."
+            );
+
+        });
+
+
+        // --------------------------------------
+        // TEST 20: DOUBLE AMOUNT REJECTED
+        // --------------------------------------
+
+        addTest("Both debit and credit on one line rejected", function() {
+
+            const journal = [
+
+                {
+                    accountCode: "1000",
+                    debitPaisa: 10000,
+                    creditPaisa: 5000
+                },
+
+                {
+                    accountCode: "3000",
+                    debitPaisa: 0,
+                    creditPaisa: 5000
+                }
+
+            ];
+
+            const result =
+                accounting.validateJournal(journal);
+
+            assert(
+                result.valid === false,
+                "Invalid journal line was accepted."
+            );
+
+        });
+
+
+        // --------------------------------------
+        // TEST 21: CONTROL ACCOUNT PROTECTION
+        // --------------------------------------
+
+        addTest("System-controlled account protected", function() {
+
+            const journal = [
+
+                {
+                    accountCode: "4000",
+                    debitPaisa: 10000,
+                    creditPaisa: 0
+                },
+
+                {
+                    accountCode: "3000",
+                    debitPaisa: 0,
+                    creditPaisa: 10000
+                }
+
+            ];
+
+            const result =
+                accounting.validateJournal(journal);
+
+            assert(
+                result.valid === false,
+                "System-controlled Sales account allowed in manual journal."
+            );
+
+        });
+
+
+        // --------------------------------------
+        // TEST 22: ACCOUNT BALANCE
+        // --------------------------------------
+
+        addTest("Account balance calculation", function() {
+
+            const ledgerLines = [
+
+                {
+                    accountCode: "1000",
+                    debitPaisa: 100000,
+                    creditPaisa: 0
+                },
+
+                {
+                    accountCode: "1000",
+                    debitPaisa: 0,
+                    creditPaisa: 25000
+                }
+
+            ];
+
+            const balance =
+                accounting.calculateAccountBalance(
+                    "1000",
+                    ledgerLines
+                );
+
+            assert(
+                balance === 75000,
+                "Expected balance 75000 paisa, received " + balance
+            );
+
+        });
+
+
+        // --------------------------------------
+        // TEST 23: CREDIT NORMAL BALANCE
+        // --------------------------------------
+
+        addTest("Equity credit balance calculation", function() {
+
+            const ledgerLines = [
+
+                {
+                    accountCode: "3000",
+                    debitPaisa: 10000,
+                    creditPaisa: 50000
+                }
+
+            ];
+
+            const balance =
+                accounting.calculateAccountBalance(
+                    "3000",
+                    ledgerLines
+                );
+
+            assert(
+                balance === 40000,
+                "Equity credit balance calculation failed."
+            );
+
+        });
+
+
+        // --------------------------------------
+        // TEST 24: TRIAL BALANCE
+        // --------------------------------------
+
+        addTest("Trial Balance calculation", function() {
+
+            const ledgerLines = [
+
+                {
+                    accountCode: "1000",
+                    debitPaisa: 100000,
+                    creditPaisa: 0
+                },
+
+                {
+                    accountCode: "3000",
+                    debitPaisa: 0,
+                    creditPaisa: 100000
+                }
+
+            ];
+
+            const trialBalance =
+                accounting.calculateTrialBalance(ledgerLines);
+
+            const debitTotal = trialBalance.reduce(
+                (sum, account) => sum + account.debitBalance,
+                0
+            );
+
+            const creditTotal = trialBalance.reduce(
+                (sum, account) => sum + account.creditBalance,
+                0
+            );
+
+            assert(
+                debitTotal === 100000 &&
+                creditTotal === 100000,
+                "Trial Balance totals are incorrect."
+            );
+
+        });
+
+
+        // --------------------------------------
+        // TEST 25: CURRENCY FORMAT
+        // --------------------------------------
+
+        addTest("PKR currency formatter", function() {
+
+            const formatted =
+                accounting.formatPKR(123456);
+
+            assert(
+                typeof formatted === "string" &&
+                formatted.startsWith("PKR"),
+                "PKR formatting failed."
+            );
+
+        });
+
+
+        // --------------------------------------
+        // TEST 26: ACCOUNT GROUPS
+        // --------------------------------------
+
+        addTest("Account grouping works", function() {
+
+            const groups =
+                accounting.getAccountGroups();
+
+            assert(
+                groups.Asset &&
+                groups.Liability &&
+                groups.Equity &&
+                groups.Income &&
+                groups.Expense,
+                "One or more account groups are missing."
+            );
+
+        });
+
+
+        // --------------------------------------
+        // TEST 27: NORMAL BALANCE CONFIGURATION
+        // --------------------------------------
+
+        addTest("Account normal balance configuration", function() {
+
+            const allAccounts = accounting.getAllAccounts();
+
+            allAccounts.forEach(account => {
+
+                assert(
+                    ["Debit", "Credit"].includes(account.normalBalance),
+                    "Invalid normal balance for " + account.name
+                );
+
+            });
+
+        });
+
+
+        // --------------------------------------
+        // TEST 28: FORMAT ACCOUNT COUNT
+        // --------------------------------------
+
+        addTest("Account count is greater than zero", function() {
+
+            assert(
+                accounting.accounts.length > 0,
+                "Account list is empty."
+            );
+
+        });
+
+
+        renderResults();
+
+        renderLibraryInfo();
+
+    }
+
+
+    // ==========================================
+    // DISPLAY TEST RESULTS
+    // ==========================================
+
+    function renderResults() {
+
+        const container =
+            document.getElementById("testResults");
+
+        const total = results.length;
+
+        const passed = results.filter(
+            item => item.status === "PASS"
+        ).length;
+
+        const failed = results.filter(
+            item => item.status === "FAIL"
+        ).length;
+
+
+        document.getElementById("totalTests").textContent = total;
+
+        document.getElementById("passedTests").textContent = passed;
+
+        document.getElementById("failedTests").textContent = failed;
+
+
+        container.innerHTML = results.map((result, index) => {
+
+            const badgeClass =
+                result.status === "PASS" ? "pass" : "fail";
+
+            return `
+
+                <div class="test-item">
+
+                    <div>
+                        <div class="test-name">
+                            ${index + 1}. ${escapeHTML(result.name)}
+                        </div>
+
+                        <div class="test-detail">
+                            ${escapeHTML(result.detail)}
+                        </div>
+                    </div>
+
+                    <span class="badge ${badgeClass}">
+                        ${result.status}
+                    </span>
+
+                </div>
+
+            `;
+
+        }).join("");
+
+
+        const message =
+            document.getElementById("testMessage");
+
+
+        if (failed === 0) {
+
+            message.textContent =
+                "All " + passed +
+                " tests passed. Your account.js basic tests are successful.";
+
+            message.className =
+                "message success-message";
+
+        } else {
+
+            message.textContent =
+                failed + " test(s) failed. Please check the failed results.";
+
+            message.className =
+                "message error-message";
+
+        }
+
+    }
+
+
+    // ==========================================
+    // LIBRARY INFORMATION
+    // ==========================================
+
+    function renderLibraryInfo() {
+
+        const accounting = window.KHAN_ACCOUNTING;
+
+        if (!accounting) {
+            return;
+        }
+
+        const groups = accounting.getAccountGroups();
+
+        const container =
+            document.getElementById("libraryInfo");
+
+        let html = `
+
+            <p style="font-size:13px;margin-bottom:12px;">
+                <strong>Version:</strong> ${escapeHTML(accounting.version)}
+            </p>
+
+            <p style="font-size:13px;margin-bottom:12px;">
+                <strong>Currency:</strong> ${escapeHTML(accounting.currency)}
+            </p>
+
+            <p style="font-size:13px;margin-bottom:12px;">
+                <strong>Total Accounts:</strong> ${accounting.accounts.length}
+            </p>
+
+            <hr style="border:0;border-top:1px solid #e2e8f0;">
+
+        `;
+
+        Object.keys(groups).forEach(type => {
+
+            html += `
+
+                <div style="
+                    display:flex;
+                    justify-content:space-between;
+                    padding:9px 0;
+                    border-bottom:1px solid #e2e8f0;
+                    font-size:12px;
+                ">
+
+                    <strong>${escapeHTML(type)}</strong>
+
+                    <span>${groups[type].length} Accounts</span>
+
+                </div>
+
+            `;
+
+        });
+
+        container.innerHTML = html;
+
+    }
+
+
+    // ==========================================
+    // SAFE HTML
+    // ==========================================
+
+    function escapeHTML(value) {
+
+        return String(value ?? "").replace(/[&<>"']/g, character => {
+
+            const entities = {
+                "&": "&amp;",
+                "<": "&lt;",
+                ">": "&gt;",
+                '"': "&quot;",
+                "'": "&#39;"
+            };
+
+            return entities[character];
+
+        });
+
+    }
+
+</script>
+
+</body>
+</html>

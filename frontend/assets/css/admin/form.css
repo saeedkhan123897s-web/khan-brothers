@@ -1,0 +1,310 @@
+
+/* ==========================================
+   KHAN BROTHERS
+   ADMIN PANEL - FORMS DESIGN
+========================================== */
+
+
+/* 1. FORM CONTAINER */
+
+form {
+    width: 100%;
+    background: var(--color-surface);
+    padding: var(--spacing-6);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+}
+
+
+/* 2. FIELDSET */
+
+fieldset {
+    border: 1px solid var(--color-border);
+    padding: var(--spacing-6);
+    margin-bottom: var(--spacing-6);
+    border-radius: var(--radius-md);
+}
+
+legend {
+    color: var(--color-primary);
+    font-size: var(--font-md);
+    font-weight: var(--font-bold);
+    padding: 0 var(--spacing-3);
+}
+
+
+/* 3. FORM GROUPS */
+
+.form-group,
+form fieldset > div,
+form > div {
+    margin-bottom: var(--spacing-5);
+}
+
+
+/* 4. LABELS */
+
+label {
+    display: block;
+    color: var(--color-text);
+    font-size: var(--font-sm);
+    font-weight: var(--font-semibold);
+    margin-bottom: var(--spacing-2);
+}
+
+
+/* 5. INPUT FIELDS */
+
+input,
+select,
+textarea {
+    width: 100%;
+    padding: 13px 15px;
+    border: 1px solid var(--color-border-dark);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    color: var(--color-text);
+    font-family: inherit;
+    font-size: var(--font-sm);
+    outline: none;
+    transition: var(--transition-fast);
+}
+
+
+/* 6. INPUT FOCUS */
+
+input:focus,
+select:focus,
+textarea:focus {
+    border-color: var(--color-secondary);
+    box-shadow: 0 0 0 3px rgba(22, 133, 104, 0.12);
+}
+
+
+/* 7. PLACEHOLDER */
+
+input::placeholder,
+textarea::placeholder {
+    color: #9ba5b3;
+    font-size: var(--font-sm);
+}
+
+
+/* 8. TEXTAREA */
+
+textarea {
+    min-height: 100px;
+    resize: vertical;
+    line-height: 1.6;
+}
+
+
+/* 9. SELECT DROPDOWN */
+
+select {
+    cursor: pointer;
+}
+
+
+/* 10. CHECKBOX AND RADIO */
+
+input[type="checkbox"],
+input[type="radio"] {
+    width: auto;
+    accent-color: var(--color-secondary);
+    cursor: pointer;
+    margin-right: var(--spacing-2);
+}
+
+form input[type="checkbox"] + label,
+form input[type="radio"] + label {
+    display: inline-block;
+    font-weight: var(--font-normal);
+    cursor: pointer;
+    margin-bottom: 0;
+}
+
+
+/* 11. FILE UPLOAD */
+
+input[type="file"] {
+    padding: var(--spacing-3);
+    background: var(--color-surface-light);
+    cursor: pointer;
+}
+
+
+/* 12. DATE AND NUMBER INPUTS */
+
+input[type="date"],
+input[type="number"] {
+    cursor: text;
+}
+
+
+/* 13. FORM BUTTONS */
+
+button {
+    padding: 13px 22px;
+    border: none;
+    border-radius: var(--radius-md);
+    background: var(--color-secondary);
+    color: white;
+    font-size: var(--font-sm);
+    font-weight: var(--font-semibold);
+    cursor: pointer;
+    transition: var(--transition-normal);
+}
+
+button:hover {
+    background: var(--color-secondary-dark);
+    transform: translateY(-2px);
+}
+
+button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+
+/* 14. RESET BUTTON */
+
+button[type="reset"] {
+    background: #64748b;
+}
+
+button[type="reset"]:hover {
+    background: #475569;
+}
+
+
+/* 15. SUBMIT BUTTON */
+
+button[type="submit"] {
+    background: var(--color-primary);
+}
+
+button[type="submit"]:hover {
+    background: var(--color-secondary);
+}
+
+
+/* 16. FORM HEADINGS */
+
+form h2,
+form h3 {
+    color: var(--color-primary);
+    margin-bottom: var(--spacing-4);
+}
+
+
+/* 17. FORM DESCRIPTION */
+
+form p {
+    color: var(--color-text-muted);
+    font-size: var(--font-sm);
+    margin-bottom: var(--spacing-4);
+}
+
+
+/* 18. FORM VALIDATION */
+
+input:required,
+select:required,
+textarea:required {
+    border-left: 3px solid var(--color-secondary);
+}
+
+
+/* 19. INVALID INPUT */
+
+input:invalid:not(:placeholder-shown),
+textarea:invalid:not(:placeholder-shown) {
+    border-color: var(--color-danger);
+}
+
+
+/* 20. OPTIONAL FORM GRID */
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--spacing-5);
+}
+
+
+/* 21. FULL WIDTH FORM FIELD */
+
+.form-group.full-width {
+    grid-column: 1 / -1;
+}
+
+
+/* 22. FORM ACTIONS */
+
+.form-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-3);
+    margin-top: var(--spacing-6);
+}
+
+
+/* 23. HELP TEXT */
+
+.form-help {
+    display: block;
+    color: var(--color-text-muted);
+    font-size: var(--font-xs);
+    margin-top: var(--spacing-2);
+}
+
+
+/* 24. RESPONSIVE DESIGN */
+
+@media (max-width: 768px) {
+
+    form {
+        padding: var(--spacing-4);
+    }
+
+    fieldset {
+        padding: var(--spacing-4);
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .form-actions {
+        flex-direction: column;
+    }
+
+    .form-actions button {
+        width: 100%;
+    }
+
+}
+
+
+/* 25. SMALL MOBILE */
+
+@media (max-width: 480px) {
+
+    form {
+        padding: var(--spacing-3);
+    }
+
+    input,
+    select,
+    textarea {
+        padding: 12px;
+    }
+
+    button {
+        width: 100%;
+    }
+
+}

@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Purchase totals, payments and supplier balances by date.">
+    <title>Purchase Report | Khan Brothers</title>
+    <link rel="stylesheet" href="/assets/css/admin/purchases.css">
+    <script src="/assets/js/common/helper.js" defer></script>
+    <script src="/assets/js/admin/app.js" defer></script>
+    <script src="/assets/js/admin/purchases.js" defer></script>
+    <link rel="icon" href="/assets/icons/image.png" type="image/png">
+    <link rel="stylesheet" href="/assets/css/common/kb-brand.css">
+    <script src="/assets/js/common/kb-loader.js" defer></script>
+</head>
+<body class="purchase-page" data-page="purchase-report">
+    <main class="purchase-main">
+        <section class="purchase-hero purchase-hero--compact admin-hero">
+            <div><p class="purchase-eyebrow">REPORTS · SUPPLIERS</p><h1>Purchase report</h1><p>Review order volume, purchase cost and outstanding supplier balances.</p></div>
+            <a class="purchase-button purchase-button--quiet" href="/admin/pages/purchases/purchase-list.html">← Purchase orders</a>
+        </section>
+        <section class="purchase-panel">
+            <form class="purchase-filters" id="purchaseReportFilters">
+                <label>From date<input type="date" id="reportStartDate" required></label>
+                <label>To date<input type="date" id="reportEndDate" required></label>
+                <button class="purchase-button purchase-button--primary" type="submit">Update report</button>
+            </form>
+            <section class="purchase-stats purchase-report-stats" aria-label="Purchase totals">
+                <article class="purchase-stat"><span>Purchase orders</span><strong id="reportCount">0</strong><small>In selected period</small></article>
+                <article class="purchase-stat"><span>Purchase total</span><strong id="reportTotal">PKR 0.00</strong><small>Before returns</small></article>
+                <article class="purchase-stat"><span>Paid to suppliers</span><strong id="reportPaid">PKR 0.00</strong><small>Recorded payments</small></article>
+                <article class="purchase-stat purchase-stat--due"><span>Outstanding</span><strong id="reportDue">PKR 0.00</strong><small>Balance payable</small></article>
+            </section>
+        </section>
+        <section class="purchase-panel">
+            <div class="purchase-panel__heading"><div><h2 class="admin-panel-title">Purchases by day</h2><p id="reportPeriodLabel">Select a date range.</p></div><button class="purchase-icon-button" id="refreshPurchaseReport" type="button" aria-label="Refresh purchase report">↻</button></div>
+            <div class="purchase-table-wrap"><table class="purchase-table purchase-table--report"><thead><tr><th>Date</th><th>Orders</th><th>Subtotal</th><th>Discounts</th><th>Shipping</th><th>Total</th><th>Paid</th><th>Due</th></tr></thead><tbody id="purchaseReportRows"><tr><td class="purchase-empty" colspan="8">Loading report…</td></tr></tbody></table></div>
+        </section>
+    </main>
+    <div class="purchase-toast" id="purchaseToast" role="status" aria-live="polite"></div>
+    <footer class="purchase-footer"><span>© 2026 Khan Brothers</span><span>Motorcycle Workshop &amp; Spare Parts · Swat, Pakistan</span></footer>
+</body>
+</html>
