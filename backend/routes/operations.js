@@ -3,7 +3,7 @@
 const express = require('express');
 const { problem } = require('../supabase');
 const { has } = require('../access');
-const { today, text, money, date, id, requestKey, run } = require('./shared');
+const { today, text, money, date, id, account, requestKey, run } = require('./shared');
 
 function commission(db) {
     const router = express.Router();
@@ -27,7 +27,7 @@ function commission(db) {
     router.post('/:kind/:id/payments',run(async (req,res) => {
         const kind=req.params.kind;
         if (!['mechanic','workshop'].includes(kind)) throw problem(400,'Choose a partner.');
-        const payment={amount:money(req.body.amount,'Amount',{min:.01,max:99999999999.99}),date:today(),
+        const payment={account:account(req.body.account),amount:money(req.body.amount,'Amount',{min:.01,max:99999999999.99}),date:today(),
             request_key:requestKey(req.body.request_key)};
         res.status(201).json(await db.rpc('kb_pay_partner',{p_kind:kind,p_id:id(req.params.id),p_payment:payment}));
     }));

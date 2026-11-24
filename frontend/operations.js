@@ -2,7 +2,7 @@
 
 window.kbOperations = function createOperations(ui) {
     const {$,view,esc,t,request,label,input,amount,select,table,panel,heading,button,submit,saveForm,showDialog,details,
-        notice,format,cents,metrics,message,signedProfit,exportLinks,can,allowedPage,closeDialog,currentPage,getData,renderPage} = ui;
+        notice,format,cents,metrics,message,signedProfit,exportLinks,can,allowedPage,closeDialog,currentPage,getData,renderPage,accountField} = ui;
     const grants = {
         dashboard:'Dashboard Dekh Sakta Hai',stock:'Stock Dekh Sakta Hai',buy:'Buy Bike Kar Sakta Hai',sell:'Sell Bike Kar Sakta Hai',
         qist:'Qist / Udhar Dekh Sakta Hai',qist_collect:'Qist Jama Kar Sakta Hai',workshop:'Workshop / Job Card Dekh Sakta Hai',
@@ -110,7 +110,7 @@ window.kbOperations = function createOperations(ui) {
             (bike.status==='stock' && can('buy') ? `<form id="bikeExpenseForm" class="form-grid">
                 ${input('date','Date',{type:'date',value:getData().today,required:true})}
                 ${input('name','Expense name',{required:true,max:100})}${amount('amount','Amount',{required:true,min:.01})}
-                ${submit('Add Expense')}</form><form id="bikePriceForm" class="form-grid">
+                ${accountField()}${submit('Add Expense')}</form><form id="bikePriceForm" class="form-grid">
                 ${amount('sell_price','Best Sell Price',{initial:bike.sell_price ?? '',required:true,min:.01})}
                 ${submit('Save Best Sell Price')}</form>` : '');
     }
@@ -211,7 +211,7 @@ window.kbOperations = function createOperations(ui) {
                 const row=entries.find(entry=>String(entry.id)===control.dataset.partnerPay);
                 showDialog(mechanic?'Commission De Diya':'Bonus De Diya',details([['Name',row.name],['Remaining',format(row.remaining)]])+
                     `<form id="partnerPayForm" class="form-grid">${amount('amount','Amount',{initial:row.remaining,required:true,min:.01,max:row.remaining})}
-                        ${submit('Save Payment')}</form>`);
+                        ${accountField()}${submit('Save Payment')}</form>`);
                 saveForm($('#partnerPayForm'),async (fields,key)=>{
                     await request('/commission/'+kind+'/'+row.id+'/payments',{method:'POST',body:{...fields,request_key:key}});
                     closeDialog();

@@ -5,6 +5,74 @@
 Khan Brothers|خان برادرز|Khan Brothers
 Khan Brothers | Motorcycle Business¦خان برادرز، موٹر سائیکل کاروبار¦Khan Brothers, Motorcycle Karobar
 Dashboard|ڈیش بورڈ|Dashboard
+Sales|فروخت|Sales
+Accounts|حساب کتاب|Hisab Kitab
+Commission|کمیشن|Commission
+Business Settings|کاروباری ترتیبات|Dukan Settings
+Day Closing History|روزانہ بندش کا ریکارڈ|Day Close Record
+Close an Earlier Day|پچھلا دن بند کریں|Pichla Din Close Karein
+Last Closed Day|آخری بند دن|Aakhri Closed Din
+Choose a date after the last closing. Closing also locks earlier transactions.|آخری بند دن کے بعد کی تاریخ چنیں۔ بندش پہلے کی لین دین بھی مقفل کر دے گی۔|Aakhri closing ke baad ki date chunein. Purani entries bhi lock ho jayengi.
+Parts Sales|پرزوں کی فروخت|Parts Ki Sale
+Supplier Payables|سپلائر کا بقایا|Supplier Ko Dene Wale Paise
+Supplier Payments|سپلائر کو ادائیگیاں|Supplier Payments
+Supplier Bills|سپلائر کے بل|Supplier Bills
+Add Supplier Bill|سپلائر کا بل شامل کریں|Supplier Bill Add Karein
+Total Supplier Balance|سپلائر کا کل بقایا|Supplier Ka Kul Baqaya
+Invoice or description|انوائس یا تفصیل|Invoice Ya Tafseel
+Choose supplier|سپلائر منتخب کریں|Supplier Select Karein
+Spare part received|وصول شدہ پرزہ|Milne Wala Spare Part
+No stock received|اسٹاک وصول نہیں ہوا|Stock Receive Nahi Hua
+Qist Payments|قسط کی ادائیگیاں|Qist Ki Payments
+Workshop Payments|ورکشاپ ادائیگیاں|Workshop Payments
+Commission Payments|کمیشن کی ادائیگیاں|Commission Ki Payments
+Workshop Cancellations|منسوخ ورکشاپ کے کام|Cancel Workshop Jobs
+Returned Parts|واپس شدہ پرزے|Wapas Kiye Parts
+Cancel Job|کام منسوخ کریں|Job Cancel Karein
+Confirm Cancellation|منسوخی کی تصدیق|Cancellation Confirm Karein
+Record Cancellation Adjustment|منسوخی کا حساب درج کریں|Cancellation Ka Hisab Darj Karein
+Confirm the actual refund and enter only the unused quantities returned to stock. Commission and referral bonus for the cancelled job will be reversed.|اصل رقم کی واپسی کی تصدیق کریں اور اسٹاک کو لوٹائے گئے غیر استعمال شدہ پرزے درج کریں۔ منسوخ کام کا کمیشن اور ریفرل بونس واپس ہوگا۔|Asal refund confirm karein. Sirf unused wapas kiye parts ki quantity likhein. Cancel job ki commission aur referral bonus reverse hoga.
+Refund|رقم کی واپسی|Refund
+Refund account|رقم واپسی کا کھاتا|Refund Account
+Reason|وجہ|Wajah
+Quantity Returned|واپس شدہ تعداد|Wapas Ki Quantity
+Cash / Bank Ledger|نقد اور بینک کا حساب|Cash / Bank Hisab
+Cash and bank statement|نقد اور بینک کا بیان|Cash Aur Bank Statement
+Bank|بینک|Bank
+Mobile Wallet|موبائل والیٹ|Mobile Wallet
+Unassigned|کھاتا درج نہیں|Account Darj Nahi
+Payment account|ادائیگی کا کھاتا|Payment Account
+Advance account|پیشگی رقم کا کھاتا|Advance Account
+Choose an account|کھاتا منتخب کریں|Account Select Karein
+Account Openings|کھاتوں کی ابتدائی رقم|Accounts Ki Opening
+Set Account Opening|کھاتے کی ابتدائی رقم مقرر کریں|Account Opening Set Karein
+From date|شروع کی تاریخ|Shuru Ki Tareekh
+To date|آخری تاریخ|Aakhri Tareekh
+Enter the balance at the start of the selected day, before that day’s transactions.|منتخب دن کی لین دین سے پہلے کی ابتدائی رقم درج کریں۔|Chuni hui date ki transactions se pehle ka opening balance darj karein.
+Unassigned entries are payments with no recorded account. The statement shows up to 500 entries per date range.|ان ادائیگیوں کا کھاتا درج نہیں۔ منتخب مدت میں ۵۰۰ اندراج تک دکھائے جاتے ہیں۔|Unassigned payments ka account darj nahi. Chuni hui dates ki 500 entries tak dikhengi.
+Records|ریکارڈ|Records
+Previous|پچھلا|Pichla
+Next|اگلا|Agla
+Admin Security|ایڈمن کی سیکیورٹی|Admin Security
+Activity Log|تبدیلیوں کا ریکارڈ|Tabdeeliyon Ka Record
+Changed Fields|تبدیل شدہ فیلڈز|Badle Hue Fields
+Record Type|ریکارڈ کی قسم|Record Type
+Record ID|ریکارڈ نمبر|Record ID
+Change Password|پاس ورڈ تبدیل کریں|Password Badlein
+Current password|موجودہ پاس ورڈ|Maujooda Password
+New password|نیا پاس ورڈ|Naya Password
+Two-step verification|دو مرحلوں کی تصدیق|Do Marhalon Ki Tasdeeq
+Two-step verification is enabled.|دو مرحلوں کی تصدیق چالو ہے۔|Two-step Verification ON Hai.
+Set Up Authenticator|تصدیقی ایپ سیٹ کریں|Authenticator Set Karein
+Authenticator or recovery code|تصدیقی یا بحالی کوڈ|Authenticator Ya Recovery Code
+Enable Two-step Verification|دو مرحلوں کی تصدیق چالو کریں|Two-step Verification ON Karein
+Disable Two-step Verification|دو مرحلوں کی تصدیق بند کریں|Two-step Verification OFF Karein
+Recovery Codes|بحالی کے کوڈ|Recovery Codes
+Sign in again|دوبارہ سائن اِن کریں|Dobara Sign In Karein
+Add a time-based account in your authenticator app and enter this setup key.|اپنی تصدیقی ایپ میں وقت پر مبنی اکاؤنٹ بنا کر یہ کلید درج کریں۔|Authenticator app mein time-based account bana kar yeh setup key darj karein.
+Keep these codes somewhere safe. Each code works only once.|کوڈ محفوظ رکھیں۔ ہر کوڈ ایک بار کام کرے گا۔|Yeh codes sambhal kar rakhein. Har code ek baar chalega.
+Enter a fresh authenticator code or recovery code.|نیا تصدیقی کوڈ یا بحالی کا کوڈ درج کریں۔|Naya authenticator code ya recovery code darj karein.
+Password changed. Sign in again.|پاس ورڈ تبدیل ہوگیا۔ دوبارہ سائن اِن کریں۔|Password badal gaya. Dobara sign in karein.
 Username|صارف نام|Username
 Users|صارفین|Users
 Naya User Banao|نیا صارف بنائیں|Naya User Banao

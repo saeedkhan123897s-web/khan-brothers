@@ -4,7 +4,7 @@ const express = require('express');
 const multer = require('multer');
 const { randomUUID } = require('node:crypto');
 const { problem } = require('../supabase');
-const { methods, photoName, today, text, money, date, id, requestKey, run } = require('./shared');
+const { methods, photoName, today, text, money, date, id, account, requestKey, run } = require('./shared');
 
 function conditions(input, required = false) {
     const fields = {};
@@ -26,7 +26,7 @@ module.exports = function bikes(db) {
     }));
     router.post('/:id/expenses',run(async (req,res) => {
         const expense = {name:text(req.body.name,'Expense name',100,true),
-            amount:money(req.body.amount,'Expense amount',{min:.01}),date:date(req.body.date,today()),request_key:requestKey(req.body.request_key)};
+            amount:money(req.body.amount,'Expense amount',{min:.01}),account:account(req.body.account),date:date(req.body.date,today()),request_key:requestKey(req.body.request_key)};
         res.status(201).json(await db.rpc('kb_add_bike_expense',{p_bike_id:id(req.params.id),p_expense:expense}));
     }));
     router.patch('/:id/condition',run(async (req,res) => {

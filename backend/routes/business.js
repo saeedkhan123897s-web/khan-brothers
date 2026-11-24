@@ -2,7 +2,7 @@
 
 const express = require('express');
 const { problem } = require('../supabase');
-const { today, text, money, id, requestKey, run } = require('./shared');
+const { today, text, money, id, account, requestKey, run } = require('./shared');
 
 function choice(value, allowed, message) {
     if (!allowed.includes(value)) throw problem(400, message);
@@ -60,6 +60,7 @@ function directory(db, name) {
         const sale = {
             quantity: quantity(req.body.quantity, 1),
             unit_price: money(req.body.unit_price, 'Unit sale price', { min: .01 }),
+            account: account(req.body.account),
             salesman: text(req.body.salesman, 'Salesman', 100),
             request_key: requestKey(req.body.request_key),
             date: today()

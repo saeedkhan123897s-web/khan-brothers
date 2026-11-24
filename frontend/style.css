@@ -376,3 +376,19 @@ dialog .form-grid + .form-grid { border-block-start: 1px solid var(--line); padd
 [data-theme="light"] .inventory-menu summary span { color: #8ce2ce; }
 [data-theme="light"] .inventory-menu summary:hover, [data-theme="light"] .inventory-menu[open] summary { background: #25535b; }
 [data-theme="light"] .inventory-submenu { border-color: #618787; }
+
+.record-pagination {
+    align-items: center;
+    justify-content: flex-end;
+    margin-block-start: 1rem;
+}
+.auth-key, .recovery-codes code {
+    user-select: all;
+    overflow-wrap: anywhere;
+}
+.recovery-codes {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+    gap: .55rem 1.25rem;
+    padding-inline-start: 1.25rem;
+}

@@ -3,6 +3,7 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { problem } = require('./supabase');
+const { records } = require('./routes/records');
 
 const permissions = ['dashboard','stock','buy','sell','qist','qist_collect','workshop','workshop_status','parts','customers',
     'profit','daily','download','commission','capital','delete','settings','users'];
@@ -16,16 +17,23 @@ const userView = row => {
         admin, permissions:admin ? permissions : permissions.filter(key => key !== 'capital' && row.permissions?.includes(key)) };
 };
 
-function accountAccess(db,settings,canSignIn) {
-    async function verify(username,password) {
+function accountAccess(db,settings,canSignIn,security) {
+    async function verify(username,password,code) {
         const name = typeof username === 'string' ? username.trim().toLowerCase() : '';
         if (!canSignIn || !/^[a-z0-9_.-]{3,40}$/.test(name) ||
             typeof password !== 'string' || Buffer.byteLength(password) > 72) throw problem(401,'Invalid username or password.');
         const account = name === 'admin' ? null : (await db.list('kb_users',{username:'eq.'+name}))[0];
-        const hash = account?.password_hash || settings.APP_PASSWORD_HASH;
+        const protectedAccount = name==='admin' || isAdmin(account?.role);
+        const securityRow = protectedAccount ? await security.get(account?.id ?? 0) : null;
+        const hash = account?.password_hash || securityRow?.password_hash || settings.APP_PASSWORD_HASH;
         const accepted = await bcrypt.compare(password,hash);
         if (!accepted || (name !== 'admin' && (!account?.active || account.deleted_at))) throw problem(401,'Invalid username or password.');
-        const token = jwt.sign(account ? {sub:String(account.id),rev:account.version} : {sub:'kb-staff'},
+        if (securityRow?.mfa_secret && !await security.verifyCode(securityRow,code)) {
+            throw problem(401,'Enter a fresh authenticator code or recovery code.');
+        }
+        const claims=account ? {sub:String(account.id),rev:account.version} : {sub:'kb-staff'};
+        if (securityRow) claims.security=securityRow.version;
+        const token = jwt.sign(claims,
             settings.APP_SESSION_SECRET,{expiresIn:'8h',algorithm:'HS256'});
         return {token,user:account ? userView(account) : root};
     }
@@ -36,10 +44,14 @@ function accountAccess(db,settings,canSignIn) {
             if (!canSignIn) throw new Error();
             claims = jwt.verify(token,settings.APP_SESSION_SECRET,{algorithms:['HS256']});
         } catch { throw problem(401,'Sign in to access Khan Brothers records.'); }
-        if (claims.sub === 'kb-staff') return root;
+        if (claims.sub === 'kb-staff') {
+            if ((await security.get(0))?.version !== claims.security) throw problem(401,'Sign in again to continue.');
+            return root;
+        }
         if (!/^\d+$/.test(claims.sub)) throw problem(401,'Sign in to access Khan Brothers records.');
         const row = (await db.list('kb_users',{id:'eq.'+claims.sub}))[0];
         if (!row?.active || row.deleted_at || row.version !== claims.rev) throw problem(401,'Sign in to access Khan Brothers records.');
+        if (isAdmin(row.role) && (await security.get(row.id))?.version !== claims.security) throw problem(401,'Sign in again to continue.');
         return userView(row);
     }
     return {verify,session};
@@ -66,7 +78,7 @@ function authorize(req,user) {
     case 'expenses': allowed = has(user,'daily'); break;
     case 'daily-report': allowed = pathname.includes('/repurchase/') ? has(user,'parts') && one('daily','dashboard') : has(user,'daily'); break;
     case 'customers': allowed = has(user,'customers'); break;
-    case 'workshop': allowed = has(user,'workshop') && (!pathname.endsWith('/status') || has(user,'workshop_status')); break;
+    case 'workshop': allowed = has(user,'workshop') && (!/\/(status|cancel)$/.test(pathname) || has(user,'workshop_status')); break;
     case 'spare-parts':
     case 'suppliers': allowed = has(user,'parts'); break;
     case 'commission': allowed = pathname === '/commission/options' ? one('workshop','commission') : has(user,'commission'); break;
@@ -74,6 +86,14 @@ function authorize(req,user) {
     case 'settings': allowed = has(user,'settings'); break;
     case 'users': allowed = has(user,'settings') && (read ? one('users','delete')
         : req.method === 'DELETE' ? has(user,'delete') : has(user,'users')); break;
+    case 'records': {
+        const section = pathname.split('/')[2];
+        const permission = Object.hasOwn(records,section) && records[section][0];
+        allowed = read && permission && (permission==='admin' ? user.admin : has(user,permission));
+        break;
+    }
+    case 'finance': allowed = pathname.startsWith('/finance/suppliers') ? has(user,'parts') : user.admin; break;
+    case 'security': allowed = user.admin; break;
     case 'profit': allowed = has(user,'profit'); break;
     case 'dashboard': allowed = has(user,'dashboard'); break;
     case 'capital': allowed = user.admin; break;

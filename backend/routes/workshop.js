@@ -3,7 +3,7 @@
 const express = require('express');
 const { problem } = require('../supabase');
 const { denied, has } = require('../access');
-const { today, text, money, date, id, requestKey, run } = require('./shared');
+const { today, text, money, date, id, account, requestKey, run } = require('./shared');
 
 const jobStatuses = ['in_progress','completed','delivered'];
 const optionalAmount = (value, label) => value == null || value === '' ? null : money(value, label);
@@ -99,6 +99,20 @@ module.exports = function workshop(db) {
         const row=Array.isArray(job) ? job[0] : job;
         res.json(has(res.locals.user,'commission') ? row : hideRates(row));
     }));
+    router.post('/:id/cancel', run(async (req, res) => {
+        const { returns, refund_account: account } = req.body;
+        if (!returns || typeof returns !== 'object' || Array.isArray(returns) ||
+            Object.entries(returns).some(([key,value]) => !/^\d+$/.test(key) || !Number.isInteger(value) || value<0 || value>2147483647)) {
+            throw problem(400,'Enter valid quantities for returned parts.');
+        }
+        const refund = money(req.body.refund,'Refund',{max:19999999999.98});
+        if (refund>0 && !['cash','bank','wallet'].includes(account)) throw problem(400,'Select a refund account.');
+        const job = await db.rpc('kb_cancel_workshop', { p_job_id:id(req.params.id),p_cancel:{
+            expected:text(req.body.expected,'Current status',30,true),returns,refund,refund_account:refund ? account : null,
+            reason:text(req.body.reason,'Cancellation reason',250,true),date:today(),request_key:requestKey(req.body.request_key)
+        } });
+        res.json(has(res.locals.user,'commission') ? job : hideRates(job));
+    }));
     router.patch('/:id/bill', run(async (req, res) => {
         const { parts_cost, labour_charge, labour_cost } = billAmounts(req.body);
         const row=await db.rpc('kb_workshop_bill', { p_job_id:id(req.params.id),
@@ -108,7 +122,7 @@ module.exports = function workshop(db) {
     router.post('/:id/payments', run(async (req, res) => {
         const payment = {
             amount: money(req.body.amount, 'Amount collected', { min:.01, max:19999999999.98 }),
-            date: today(), request_key: requestKey(req.body.request_key)
+            account: account(req.body.account), date: today(), request_key: requestKey(req.body.request_key)
         };
         const result=await db.rpc('kb_collect_workshop', { p_job_id:id(req.params.id), p_payment:payment });
         res.status(201).json(has(res.locals.user,'commission') ? result : {...result,job:hideRates(result.job)});

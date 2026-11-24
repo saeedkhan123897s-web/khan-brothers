@@ -10,6 +10,10 @@ const { createSupabase, problem } = require('./supabase');
 const { date, id, run, today } = require('./routes/shared');
 const { state, exportReport } = require('./reports');
 const assets = require('./spa-assets');
+const finance = require('./routes/finance');
+const { recordRouter } = require('./routes/records');
+const { adminSecurity } = require('./admin-security');
+const securityRouter = require('./routes/security');
 const { directory, settingsRouter } = require('./routes/business');
 const { accountAccess, authorize, has, restrictedState } = require('./access');
 const { commission, capital, dashboard } = require('./routes/operations');
@@ -34,7 +38,8 @@ function createApp(settings = process.env, db = createSupabase(settings), app = 
     const secure = settings.VERCEL === '1' || settings.NODE_ENV === 'production';
     const cookieOptions = { httpOnly: true, sameSite: 'strict', secure, path: '/' };
     const canSignIn = Boolean(settings.APP_PASSWORD_HASH && settings.APP_SESSION_SECRET?.length >= 32);
-    const accounts = accountAccess(db,settings,canSignIn);
+    const security = adminSecurity(db,settings);
+    const accounts = accountAccess(db,settings,canSignIn,security);
     app.disable('x-powered-by');
     if (settings.VERCEL === '1') app.set('trust proxy', 1);
     app.use(helmet({
@@ -63,14 +68,15 @@ function createApp(settings = process.env, db = createSupabase(settings), app = 
         handler: (_req, res) => res.status(429).json({ error: 'Too many sign-in attempts. Try again later.' }) }),
     run(async (req, res) => {
         if (!canSignIn) throw problem(503, 'Configure the staff password hash and session secret.');
-        const {token,user} = await accounts.verify(req.body.username,req.body.password);
+        const {token,user} = await accounts.verify(req.body.username,req.body.password,req.body.code);
         res.cookie(cookieName, token, { ...cookieOptions, maxAge: 8 * 60 * 60 * 1000 }).json({ signedIn:true,user });
     }));
     app.post('/api/logout', (_req, res) => res.clearCookie(cookieName, cookieOptions).json({ signedIn: false }));
     app.use('/api', run(async (req,res,next) => {
         res.locals.user = await accounts.session(req.cookies[cookieName]);
         authorize(req,res.locals.user);
-        next();
+        if (db.withActor) db.withActor(res.locals.user,next);
+        else next();
     }));
     app.get('/api/session',(_req,res)=>res.json(res.locals.user));
     app.get('/api/state', run(async (req, res) => {
@@ -86,6 +92,7 @@ function createApp(settings = process.env, db = createSupabase(settings), app = 
     app.post('/api/daily-report/close', run(async (req, res) => {
         const day = date(req.body.date, null);
         if (!day) throw problem(400, 'Enter a valid date.');
+        if (day!==today(businessTimeZone) && !res.locals.user.admin) throw problem(403,'Only an admin can close an earlier day.');
         res.json(await db.rpc('kb_close_day', { p_day:day, p_timezone:businessTimeZone }));
     }));
     app.post('/api/daily-report/repurchase/:id', run(async (req, res) => {
@@ -105,6 +112,9 @@ function createApp(settings = process.env, db = createSupabase(settings), app = 
     }));
     app.get('/api/dashboard/charts',dashboard(db,businessTimeZone));
     app.use('/api/capital',capital(db,businessTimeZone));
+    app.use('/api/finance',finance(db,businessTimeZone));
+    app.use('/api/records',recordRouter(db));
+    app.use('/api/security',securityRouter(security));
     app.get('/api/profit/entries', run(async (_req, res) => res.json(await db.rpc('kb_profit_entries', {}))));
     for (const [resource, router] of Object.entries(routes)) app.use('/api/' + resource, router(db));
     app.get('/api/export/:section', run(async (req, res) => {

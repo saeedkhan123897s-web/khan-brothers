@@ -35,9 +35,27 @@ Select a Profit Report box to see transaction amounts and totals by salesperson 
 
 In Workshop, the total bill is the parts charge plus the labour charge. Use **Details** to update the bill and **Collect Payment** to record actual receipts. Ready and delivered jobs appear in **Repair History**. Search either job list by bike number or mobile number.
 
-The Daily Report adds recorded sale receipts, Qist collections and workshop payments to the latest saved closing balance, then deducts operating expenses. The first opening balance is zero. Closing a day saves the report and blocks new postings to that date. The repurchase list targets 10 units per low-stock part and clears a tick when the part's inventory quantity changes.
+The Daily Report adds recorded sale receipts, Qist collections and workshop payments, and deducts operating expenses. An unclosed interval carries forward from the latest saved closing. Administrators can close an earlier day after the latest saved closing. Saving the close locks postings for that day and the dates it already covers. The repurchase list targets 10 units per low-stock part and clears a tick when the part's inventory quantity changes.
 
 Assign independent mechanics and optional referral workshops to jobs. Recording parts deducts stock and saves the commission and referral bonus for those parts. Partner payouts reduce the Daily Report closing balance. Capital is available only to administrators and starts with PKR 120,000.
+
+## Accounts and workshop adjustments
+
+The sidebar groups records and histories by business area. An account sees the pages its permissions allow. Under **Accounts → Cash / Bank Ledger**, administrators can set verified starting balances and review cash, bank and mobile wallet movements. Payments without a recorded account appear as **Unassigned**. The initial capital entry stays in the investment report. Enter actual account openings for the day you start reconciling.
+
+Use **Spare Parts → Supplier Payables** to record supplier invoices and payments. Linking a received part adds its quantity to stock and uses the bill amount as the total cost of that batch, updating the weighted unit cost.
+
+Use **Cancel Job** from workshop details. Enter the unused quantities actually returned and confirm the actual refund. The cancellation reverses the related commissions and credits returned stock. A previously paid mechanic or workshop balance can go negative until later earnings offset it. Existing cancelled jobs can be corrected from Repair History.
+
+Under **Settings → Admin Security**, change the administrator password and enable two-step verification. Save the recovery codes before signing back in. Set a stable `APP_MFA_ENCRYPTION_KEY` before enrolling if the session secret will be rotated independently. The Activity Log records who changed a sensitive record, when it happened, and the affected fields.
+
+## Backups and restore checks
+
+The GitHub **Project checks** workflow applies the numbered migrations to a clean PostgreSQL database, tests accounting, then repeats the tests on a restored copy.
+
+For scheduled production backups, create a GitHub environment named `production-backup` with secrets `SUPABASE_DATABASE_URL`, `SUPABASE_URL` and `SUPABASE_KEY`. Use a Supabase direct connection or session pooler connection string for the database URL. Set the environment variable `KB_BACKUP_RECIPIENT` to your age public recipient and keep the private age identity away from GitHub. Run **Encrypted shop backup** manually and validate the first copy. To enable the daily run, set the repository variable `KB_BACKUPS_ENABLED` to `true`.
+
+Decrypt a downloaded archive with `age -d -i /path/to/age-key -o backup.tar.gz backup.tar.gz.age`. Extract it to a private directory. Use PostgreSQL 18 backup tools for the restore. In an isolated Supabase project with its default public schema, generate a restore list with `pg_restore --list shop.dump | sed '/ SCHEMA - public /d' > restore.list`. Restore the app with `pg_restore --exit-on-error --no-owner --use-list=restore.list --dbname=... shop.dump`. Confirm the database records, verify the photo files against `photo-manifest.json`, then upload them to the private `kb-bike-photos` bucket in that isolated project. Use the same `APP_MFA_ENCRYPTION_KEY` or enrollment-time session secret to test enrolled accounts. [Supabase backup guide](https://supabase.com/docs/guides/platform/backups)
 
 ## Vercel
 

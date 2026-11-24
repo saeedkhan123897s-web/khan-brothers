@@ -5,14 +5,135 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Payments and receipts | Khan Brothers</title>
     <link rel="stylesheet" href="/assets/css/admin/erp.css">
-    <script src="/assets/js/common/helper.js" defer></script>
-    <script src="/assets/js/admin/app.js" defer></script>
-    <script src="/assets/js/admin/records.js" defer></script>
     <link rel="icon" href="/assets/icons/image.png" type="image/png">
     <link rel="stylesheet" href="/assets/css/common/kb-brand.css">
     <script src="/assets/js/common/kb-loader.js" defer></script>
+    <style>
+      *{box-sizing:border-box} body{margin:0;font-family:Inter,Arial,sans-serif;background:#f1f5f9;color:#0f172a}
+      .wrap{max-width:1280px;margin:0 auto;padding:18px}
+      .top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+      .top h1{font-size:26px;margin:0} .top p{margin:4px 0 0;color:#64748b}
+      .btn{border:0;border-radius:10px;padding:11px 16px;font-weight:700;cursor:pointer}
+      .btn-dark{background:#0f172a;color:#fff} .btn-green{background:#16a34a;color:#fff} .btn-line{background:#fff;border:1px solid #e2e8f0}
+      .cards{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin:18px 0}
+      @media(max-width:900px){.cards{grid-template-columns:repeat(2,1fr)}}
+      .card{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:14px}
+      .card small{color:#64748b;font-weight:600} .card b{font-size:24px;display:block;margin:6px 0 2px} .card span{font-size:12px;color:#64748b}
+      .c-blue{border-top:4px solid #2563eb}.c-yellow{border-top:4px solid #f59e0b}.c-green{border-top:4px solid #16a34a}.c-red{border-top:4px solid #ef4444}.c-dollar{border-top:4px solid #0ea5e9}.c-warn{border-top:4px solid #f97316}
+      .tabs{display:flex;gap:8px;background:#fff;padding:8px;border-radius:12px;border:1px solid #e2e8f0}
+      .tab{flex:1;padding:12px;border:0;border-radius:10px;background:#f1f5f9;cursor:pointer;font-weight:700}
+      .tab.active{background:#0f172a;color:#fff}
+      .box{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:18px;margin-top:14px}
+      .box h2{margin:0 0 4px;font-size:20px} .box p{margin:0 0 16px;color:#64748b;font-size:13px}
+      .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+      @media(max-width:700px){.grid{grid-template-columns:1fr}}
+      label{font-size:13px;font-weight:700;display:block;margin-bottom:6px}
+      input,select,textarea{width:100%;padding:12px;border:1px solid #e2e8f0;border-radius:10px;font-size:14px;background:#fff}
+      .bal{background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:12px;display:flex;justify-content:space-between;align-items:center;margin-top:8px}
+      .bal b{color:#2563eb}
+      .row{display:flex;gap:10px;justify-content:flex-end;margin-top:16px;flex-wrap:wrap}
+      table{width:100%;border-collapse:collapse;font-size:13px} th{ text-align:left;background:#f8fafc;padding:10px;border-bottom:1px solid #e2e8f0} td{padding:10px;border-bottom:1px solid #f1f5f9}
+      .pill{padding:4px 10px;border-radius:20px;font-size:12px;font-weight:700} .posted{background:#dcfce7;color:#166534} .draft{background:#fef9c3;color:#854d0e}
+      .hidden{display:none}
+    </style>
 </head>
-<body data-erp-page="payment">
-    <noscript><p>Enable JavaScript to use this ERP page. <a href="/admin/dashboard.html">Back to dashboard</a></p></noscript>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div><h1>Payments</h1><p>Record customer payments and receipts</p></div>
+    <div><button class="btn btn-line" onclick="window.location.href='/admin/dashboard.html'">← Back to Dashboard</button> <button class="btn btn-dark" onclick="showTab('create')">+ New Payment</button></div>
+  </div>
+
+  <div class="cards">
+    <div class="card c-blue"><small>📄 Total Payments</small><b id="tTotal">0</b><span>All payments</span></div>
+    <div class="card c-yellow"><small>📝 Draft</small><b id="tDraft">0</b><span>Awaiting posting</span></div>
+    <div class="card c-green"><small>✅ Posted</small><b id="tPosted">0</b><span>Posted to GL</span></div>
+    <div class="card c-red"><small>❌ Cancelled</small><b id="tCancel">0</b><span>Cancelled</span></div>
+    <div class="card c-dollar"><small>💲 Total Amount</small><b id="tAmt">Rs. 0</b><span>Sum of payments</span></div>
+    <div class="card c-warn"><small>⚠️ Pending GL</small><b id="tPending">0</b><span>Not posted</span></div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" id="tab-list" onclick="showTab('list')">Payments List</button>
+    <button class="tab" id="tab-create" onclick="showTab('create')">Create Payment</button>
+    <button class="tab" id="tab-reports" onclick="showTab('reports')">Reports & Analytics</button>
+  </div>
+
+  <!-- LIST -->
+  <div class="box" id="view-list">
+    <h2>Payments List</h2><p>All payments - search, filter and manage</p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px"><input id="search" placeholder="🔍 Search by party, reference, method..." oninput="render()" style="flex:1"><select id="fStatus" onchange="render()" style="width:180px"><option value="">All Status</option><option>Posted</option><option>Draft</option><option>Cancelled</option></select></div>
+    <div style="overflow:auto"><table><thead><tr><th>Date</th><th>Party</th><th>Method</th><th>Reference</th><th>Amount</th><th>Status</th><th>Action</th></tr></thead><tbody id="tbody"></tbody></table></div>
+    <p id="empty" style="text-align:center;padding:20px;color:#94a3b8">No payments yet. Create first payment from Create Payment tab.</p>
+  </div>
+
+  <!-- CREATE -->
+  <div class="box hidden" id="view-create">
+    <h2>Create Payment Received</h2><p>Record a payment received from a customer</p>
+    <div class="grid">
+      <div><label>Party *</label><input id="party" placeholder="Search party... e.g. Ahmed Traders"><div class="bal"><span>Previous Balance</span><b>Rs. 1,000.00 (Dr)</b></div></div>
+      <div><label>Payment Amount *</label><input id="amount" type="number" placeholder="0.00"></div>
+      <div><label>Recovery Date *</label><input id="rdate" type="date"></div>
+      <div><label>Payment Date *</label><input id="pdate" type="date"></div>
+      <div><label>Payment Mode *</label><select id="mode"><option>Lump Sum</option><option>Partial</option><option>Advance</option><option>Installment</option></select></div>
+      <div><label>Payment Direction *</label><select id="dir"><option>Payment Received</option><option>Payment Made</option></select></div>
+      <div><label>Payment Method *</label><select id="method"><option>Cash</option><option>Bank Transfer</option><option>Cheque</option><option>JazzCash</option><option>EasyPaisa</option></select></div>
+      <div><label>Payment Reference</label><input id="ref" placeholder="e.g. CHQ-123, TXN-..."></div>
+      <div><label>Status *</label><select id="status"><option>Posted</option><option>Draft</option></select></div>
+      <div><label>Salesman</label><input id="salesman" placeholder="Salesman name"></div>
+      <div><label>Orderbooker</label><input id="orderbooker" placeholder="Orderbooker name"></div>
+      <div><label>Recovered By</label><input id="recovered" placeholder="Who recovered?"></div>
+    </div>
+    <div style="margin-top:14px"><label>Notes / Allocation</label><textarea id="notes" rows="3" placeholder="Notes, allocation against invoices..."></textarea></div>
+    <div class="row"><button class="btn btn-line" onclick="showTab('list')">Cancel</button><button class="btn btn-green" onclick="save()">💾 Save Payment</button><button class="btn btn-dark" onclick="savePrint()">Save & Print Receipt 🖨️</button></div>
+  </div>
+
+  <!-- REPORTS -->
+  <div class="box hidden" id="view-reports">
+    <h2>Reports & Analytics</h2><p>Summary of your payments</p>
+    <div id="reportBox" style="line-height:2"></div>
+  </div>
+</div>
+
+<script>
+let data = JSON.parse(localStorage.getItem('kb_payments')||'[]');
+document.getElementById('pdate').value = new Date().toISOString().slice(0,10);
+document.getElementById('rdate').value = new Date().toISOString().slice(0,10);
+function showTab(t){
+  ['list','create','reports'].forEach(x=>{
+    document.getElementById('view-'+x).classList.toggle('hidden',x!==t);
+    document.getElementById('tab-'+x).classList.toggle('active',x===t);
+  });
+  if(t==='reports') renderReport();
+  render();
+}
+function save(){
+  let party=document.getElementById('party').value.trim();
+  let amt=parseFloat(document.getElementById('amount').value||0);
+  if(!party||!amt){alert('Party aur Amount likhna zaroori hai');return;}
+  data.unshift({date:document.getElementById('pdate').value,party,method:document.getElementById('method').value,ref:document.getElementById('ref').value||'-',amount:amt,status:document.getElementById('status').value,dir:document.getElementById('dir').value});
+  localStorage.setItem('kb_payments',JSON.stringify(data));
+  alert('Payment Save ho gaya!');
+  document.getElementById('party').value='';document.getElementById('amount').value='';document.getElementById('ref').value='';
+  showTab('list');
+}
+function savePrint(){ save(); setTimeout(()=>window.print(),300); }
+function render(){
+  let q=(document.getElementById('search').value||'').toLowerCase();
+  let fs=document.getElementById('fStatus').value;
+  let list=data.filter(d=>(!q||d.party.toLowerCase().includes(q)||d.ref.toLowerCase().includes(q))&&(!fs||d.status===fs));
+  document.getElementById('tTotal').textContent=data.length;
+  document.getElementById('tDraft').textContent=data.filter(d=>d.status==='Draft').length;
+  document.getElementById('tPosted').textContent=data.filter(d=>d.status==='Posted').length;
+  document.getElementById('tCancel').textContent=data.filter(d=>d.status==='Cancelled').length;
+  document.getElementById('tAmt').textContent='Rs. '+data.reduce((s,d)=>s+d.amount,0).toLocaleString();
+  document.getElementById('tPending').textContent=data.filter(d=>d.status==='Draft').length;
+  document.getElementById('tbody').innerHTML=list.map((d,i)=>`<tr><td>${d.date}</td><td><b>${d.party}</b><br><small>${d.dir}</small></td><td>${d.method}</td><td>${d.ref}</td><td><b>Rs. ${d.amount.toLocaleString()}</b></td><td><span class="pill ${d.status==='Posted'?'posted':'draft'}">${d.status}</span></td><td><button onclick="del(${data.indexOf(d)})">Delete</button></td></tr>`).join('');
+  document.getElementById('empty').style.display=list.length?'none':'block';
+}
+function del(i){ if(confirm('Delete karna hai?')){data.splice(i,1);localStorage.setItem('kb_payments',JSON.stringify(data));render();} }
+function renderReport(){ document.getElementById('reportBox').innerHTML=`<b>Total Payments:</b> ${data.length} <br><b>Total Amount:</b> Rs. ${data.reduce((s,d)=>s+d.amount,0).toLocaleString()} <br><b>Cash:</b> Rs. ${data.filter(d=>d.method==='Cash').reduce((s,d)=>s+d.amount,0).toLocaleString()} <br><b>Bank Transfer:</b> Rs. ${data.filter(d=>d.method==='Bank Transfer').reduce((s,d)=>s+d.amount,0).toLocaleString()}`; }
+render();
+</script>
 </body>
 </html>

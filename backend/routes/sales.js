@@ -2,7 +2,7 @@
 
 const express = require('express');
 const { problem } = require('../supabase');
-const { methods, today, text, money, date, id, requestKey, run } = require('./shared');
+const { methods, today, text, money, date, id, account, requestKey, run } = require('./shared');
 
 module.exports = function sales(db) {
     const router = express.Router();
@@ -27,6 +27,7 @@ module.exports = function sales(db) {
             payment_method: method, request_key: requestKey(data.request_key) };
         if (method === 'qist') Object.assign(sale, {
             interest_rate: money(data.interest_rate || 0, 'Interest rate', { max: 999.99 }),
+            advance_account: account(data.advance_account),
             advance: money(data.advance || 0, 'Advance'), monthly_qist: money(data.monthly_qist, 'Monthly Qist', { min: .01 }),
             next_date: date(data.next_date, null)
         });

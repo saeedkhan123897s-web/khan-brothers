@@ -35,6 +35,11 @@ function id(value) {
     if (!/^\d+$/.test(value) || !Number.isSafeInteger(Number(value)) || Number(value) < 1) throw problem(400, 'Invalid record ID.');
     return Number(value);
 }
+function account(value, fallback = null) {
+    if (value == null || value === '') return fallback;
+    if (!['cash','bank','wallet'].includes(value)) throw problem(400,'Select a valid cash or bank account.');
+    return value;
+}
 function requestKey(value) {
     if (!value) return randomUUID();
     if (!/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(value)) throw problem(400, 'Invalid request key.');
@@ -42,4 +47,4 @@ function requestKey(value) {
 }
 const run = handler => (req, res, next) => Promise.resolve().then(() => handler(req, res, next)).catch(next);
 
-module.exports = { methods, expenseTypes, photoName, today, text, money, date, id, requestKey, run };
+module.exports = { methods, expenseTypes, photoName, today, text, money, date, id, account, requestKey, run };

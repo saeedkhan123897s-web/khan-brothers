@@ -9,15 +9,35 @@
     const { t } = window.kbLanguage;
     const payment = { cash: 'Cash', bank: 'Bank Transfer', jazzcash: 'JazzCash', easypaisa: 'EasyPaisa', card: 'Card', qist: 'Qist / Udhar' };
     const categories = ['Kiraya','Chai','Petrol','Mechanic','Other'];
-    const nav = {
-        dashboard: ['Dashboard','⌂'], 'daily-report': ['Daily Report','◷'], purchase: ['Purchase','＋'], stock: ['Stock','▦'], sell: ['Sell','⇄'],
-        customers: ['Customers','◎'], suppliers: ['Suppliers','◇'], 'spare-parts': ['Spare Parts','⚙'], workshop: ['Workshop','🔧'],
-        qist: ['Qist','◷'], expenses: ['Expenses','−'], profit: ['Profit','▥'], mechanics: ['Mechanic Ledger','◇'],
-        staff: ['Staff','♙'], settings: ['Settings','⚙']
-    };
-    const pageNames = { ...Object.fromEntries(Object.entries(nav).map(([key, value]) => [key, value[0]])),
-        sold: 'Sold Bikes', 'qist-dues': 'Paise Lene Wale', 'workshop-ledger':'Workshop Ledger',
-        users:'Users',rules:'Rules Router',capital:'Capital / Investment' };
+    const pageNames = {
+    dashboard:'Dashboard', 'daily-report':'Daily Report', 'day-closings':'Day Closing History',
+    purchase:'Purchase', stock:'Stock', 'bike-expenses':'Bike Expenses',
+    sell:'Sell Bike', sold:'Sold Bikes', customers:'Customers',
+    suppliers:'Suppliers', 'supplier-ledger':'Supplier Payables', 'supplier-payments':'Supplier Payments',
+    'spare-parts':'Spare Parts', 'part-sales':'Parts Sales',
+    workshop:'Workshop', 'workshop-new':'New Job', 'workshop-history':'Repair History',
+    'job-parts':'Job Parts', 'workshop-payments':'Workshop Payments', 'workshop-cancellations':'Workshop Cancellations',
+    'part-returns':'Returned Parts', mechanics:'Mechanic Ledger', 'workshop-ledger':'Workshop Ledger',
+    'commission-payments':'Commission Payments', qist:'Qist / Udhar', 'qist-dues':'Paise Lene Wale',
+    'qist-payments':'Qist Payments', expenses:'Expenses', profit:'Profit',
+    cashbook:'Cash / Bank Ledger', 'cash-openings':'Account Openings',
+    bank:'Bank', 'general-ledger':'General Ledger', payment:'Payments', purchases:'Purchases',
+    'trial-balance':'Trial Balance', reports:'Reports', 'account-test':'Account Test',
+    staff:'Staff', settings:'Settings', users:'Users', rules:'Rules Router', capital:'Capital / Investment',
+    'activity-log':'Activity Log', security:'Admin Security'
+};
+    
+    const navigationSections = [['Dashboard','⌂',['dashboard']],
+['Inventory','▦',['stock','purchase','bike-expenses']],
+['Sales','⇄',['sell','sold']],
+['Customers','◎',['customers']],
+['Qist / Udhar','◷',['qist','qist-dues','qist-payments']],
+['Spare Parts','⚙',['spare-parts','part-sales','suppliers','supplier-ledger','supplier-payments']],
+['Workshop','🔧',['workshop','workshop-new','workshop-history','job-parts','workshop-payments','workshop-cancellations','part-returns']],
+['Commission','◇',['mechanics','workshop-ledger','commission-payments']],
+['Accounts','▤',['daily-report','day-closings','expenses','profit','cashbook','cash-openings','bank','general-ledger','payment','purchases','trial-balance','reports','account-test']],
+['Settings','⚙',['settings','staff','users','rules','capital','security','activity-log']]
+    ];
     const titles = { purchase: 'Purchase Bike', sell: 'Sell Bike', profit: 'Profit Report', qist: 'Qist / Udhar' };
     const esc = value => String(value ?? '').replace(/[&<>"']/g, letter =>
         ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[letter]);
@@ -35,15 +55,22 @@
     let dataRevision = 0;
     let lastPage = '';
     let filterState = new Map();
-    let inventoryOpen = false;
+    const openNavigation = new Map();
     let lastUpdated = 0;
     let viewHasDraft = false;
     const usesDailyReport = page => page === 'dashboard' || page === 'daily-report';
-    const pagePermissions = {'daily-report':'daily',expenses:'daily',purchase:'buy',sold:'sell','qist-dues':'qist',
-        suppliers:'parts','spare-parts':'parts',mechanics:'commission','workshop-ledger':'commission',staff:'settings'};
+    const pagePermissions = {
+        'daily-report':'daily','day-closings':'daily',expenses:'daily',purchase:'buy','bike-expenses':'stock',sold:'sell',
+        'qist-dues':'qist','qist-payments':'qist',suppliers:'parts','spare-parts':'parts','part-sales':'parts',
+        'supplier-ledger':'parts','supplier-payments':'parts',mechanics:'commission','workshop-ledger':'commission',
+        'commission-payments':'commission','workshop-new':'workshop','workshop-history':'workshop',
+        'job-parts':'workshop','workshop-payments':'workshop','workshop-cancellations':'workshop','part-returns':'workshop',staff:'settings'
+    };
+    const adminPages = ['capital','rules','cashbook','cash-openings','security','activity-log'];
+    const workshopPages = {workshop:'active','workshop-new':'new','workshop-history':'history'};
     const can = key => Boolean(data?.user?.admin || (key !== 'capital' && data?.user?.permissions?.includes(key)));
     function allowedPage(page) {
-        if (page === 'capital' || page === 'rules') return Boolean(data?.user?.admin);
+        if (adminPages.includes(page)) return Boolean(data?.user?.admin);
         if (page === 'users') return can('settings') && (can('users') || can('delete'));
         return can(pagePermissions[page] || page);
     }
@@ -67,6 +94,8 @@
         setDrawer(false);
         workspace.hidden = true;
         $('#signIn').hidden = false;
+        $('#loginCode').hidden = true;
+        $('#loginForm').elements.code.value = '';
         if (receiptDialog.open) receiptDialog.close();
         data = undefined;
         lastPage = '';
@@ -137,9 +166,11 @@
             ${type === 'number' ? `step="0.01" min="${min}" max="${max}"` : `maxlength="${max}"`} ${extra}>`);
     const amount = (name, title, { initial = '', required = false, min = 0, max = 9999999999.99 } = {}) =>
         input(name, title, { type: 'number', value: initial, required, min, max });
+    const accountField = (name = 'account',title = 'Payment account') =>
+        select(name,title,[['cash','Cash'],['bank','Bank'],['wallet','Mobile Wallet']],'cash','Choose an account',false,true);
     const salesmanInput = (value = '') => input('salesman','Salesman',{ value, max:100, required:true });
-    function select(name, title, options, current = '', placeholder = 'Any', verbatim = false) {
-        return label(title, `<select name="${name}"><option value="">${esc(placeholder)}</option>${options.map(([key, text]) =>
+    function select(name, title, options, current = '', placeholder = 'Any', verbatim = false, required = false) {
+        return label(title, `<select name="${name}"${required?' required':''}><option value="">${esc(placeholder)}</option>${options.map(([key, text]) =>
             `<option value="${esc(key)}"${String(key) === String(current) ? ' selected' : ''}${verbatim ? ' data-verbatim' : ''}>${esc(text)}</option>`).join('')}</select>`);
     }
     const panel = (title, body, actions = '') =>
@@ -291,6 +322,9 @@
         ]) : '<p class="empty">No parts on the repurchase list.</p>');
     }
 
+    const previousDate = day => new Date(Date.parse(day)-86400000).toISOString().slice(0,10);
+    const nextDate = day => new Date(Date.parse(day)+86400000).toISOString().slice(0,10);
+
     function dailyReportPage() {
         if (!data.daily) return heading('daily-report') + '<p class="empty" role="status">Loading…</p>';
         const {report,history} = data.daily;
@@ -301,12 +335,32 @@
             ['Today Qist Collected',format(report.qist_collected)],['Today Workshop Income',format(report.workshop_income)],
             ['Total Income',format(report.total_income)],['Today Expense',format(report.expense)],['Closing Balance',format(report.closing_balance)]
         ]);
-        return heading('daily-report',action+exportLinks('daily')) + panel('Daily balances', `<p class="daily-report-date"><bdi>${esc(report.date)}</bdi></p>
+        const canCloseEarlier = data.user.admin && (!history.length || history[0].date<previousDate(report.date));
+        const earlier = canCloseEarlier ? '<button type="button" id="earlierClose">Close an Earlier Day</button>' : '';
+        return heading('daily-report',action+earlier+exportLinks('daily')) + panel('Daily balances', `<p class="daily-report-date"><bdi>${esc(report.date)}</bdi></p>
             ${values}<p class="daily-report-note" data-message>Sale income includes Qist advances. Qist collections and workshop income use recorded payments.</p>`) +
             (can('parts') ? repurchasePanel() : '') + panel('Last 10 Day Closings', table(history,[
                 ['Date','date'],['Opening Balance','opening_balance','money'],['Total Income','total_income','money'],
                 ['Expense','expense','money'],['Closing Balance','closing_balance','money']
             ]));
+    }
+
+    function earlierDayClose() {
+        const report = data.daily.report;
+        const latest = data.daily.history[0]?.date;
+        const latestAllowed = previousDate(report.date);
+        const firstAllowed = latest ? nextDate(latest) : '1900-01-01';
+        showDialog('Close an Earlier Day',`<form id="earlierCloseForm" class="form-grid">
+            ${input('date','Date',{type:'date',required:true,value:latestAllowed,extra:`min="${firstAllowed}" max="${latestAllowed}"`})}
+            <p class="wide" data-message>Choose a date after the last closing. Closing also locks earlier transactions.</p>
+            ${latest ? details([['Last Closed Day',latest]]) : ''}${submit('Confirm Day Close')}</form>`);
+        const form = $('#earlierCloseForm');
+        saveForm(form,async fields=>{
+            await request('/daily-report/close',{method:'POST',body:fields});
+            receiptDialog.close();
+            await refresh();
+            notice('Saved.');
+        });
     }
 
     function confirmDayClose() {
@@ -356,7 +410,7 @@
             ${input('customer_cnic','CNIC',{max:15})}${amount('sell_price','Bike Price',{required:true,min:.01,initial:selected?.sell_price ?? ''})}
             ${select('payment_method','Payment Method',Object.entries(payment),'cash','Choose a method')}
             ${amount('interest_rate','Flat interest (%)',{initial:0,max:999.99})}
-            ${amount('advance','Advance',{initial:0})}${amount('monthly_qist','Monthly Qist',{min:.01})}
+            ${amount('advance','Advance',{initial:0})}${accountField('advance_account','Advance account')}${amount('monthly_qist','Monthly Qist',{min:.01})}
             ${input('next_date','Next Date',{type:'date',extra:`min="${data.today}"`})}
             <p id="saleLoss" class="notice error wide" role="status"></p>
             <p class="calculation wide" aria-live="polite"></p>${submit('Record Sale')}</form>`) +
@@ -368,7 +422,7 @@
         return heading('expenses') + panel('Add expense', `<form id="expenseForm" class="form-grid">
             ${select('type','Category',categories.map(category => [category,category]),'','Choose a category')}
             ${amount('amount','Amount',{required:true,min:.01})}${input('date','Date',{type:'date',required:true,value:data.today})}
-            ${input('description','Description',{max:250})}${submit('Save Expense')}</form>`) +
+            ${input('description','Description',{max:250})}${accountField()}${submit('Save Expense')}</form>`) +
             panel('Expense history', table(data.expenses, columns.expenses));
     }
 
@@ -403,7 +457,7 @@
         waiting_parts: ['in_progress','cancelled'], in_progress: ['completed','waiting_parts','cancelled'],
         completed: ['delivered'], delivered: [], cancelled: []
     };
-    const completedJob = job => ['completed','delivered'].includes(job.status);
+    const completedJob = job => ['completed','delivered','cancelled'].includes(job.status);
     const jobLabel = status => ({ completed:'Ready', in_progress:'In Progress' })[status] ||
         status.replaceAll('_',' ').replace(/^./, c => c.toUpperCase());
     const jobOptions = statuses => statuses.map(status => [status,jobLabel(status)]);
@@ -419,7 +473,7 @@
     }
 
     function workshopCard(job) {
-        const balance = jobBalance(job);
+        const balance = job.status==='cancelled' ? 0 : jobBalance(job);
         const field = (title, value, extra = '') => `<div ${extra}><dt>${title}</dt><dd>${value}</dd></div>`;
         return `<article class="workshop-card">
             <header><div><h3>${esc(job.bike_name)}</h3>${job.registration_number ? `<bdi>${esc(job.registration_number)}</bdi>` : ''}</div>
@@ -548,7 +602,7 @@
     async function saveWorkshopView(job, form, followStatus = false) {
         workshopJobs = workshopJobs.map(row => String(row.id) === String(job.id) ? job : row);
         if (form.isConnected && receiptDialog.open) receiptDialog.close();
-        if (currentPage() !== 'workshop' || workshopTab === 'new' || !data) return;
+        if (!Object.hasOwn(workshopPages,currentPage()) || workshopTab === 'new' || !data) return;
         if (followStatus) workshopTab = completedJob(job) ? 'history' : 'active';
         await showWorkshop({ reload:false });
         notice('Saved.');
@@ -557,19 +611,23 @@
     function workshopDetails(id) {
         const job = workshopJobs.find(item => String(item.id) === id);
         if (!job) return;
-        const options = jobTransitions[job.status] || [];
+        const options = (jobTransitions[job.status] || []).filter(status=>status!=='cancelled');
+        const cancellable = !job.cancelled_on && !['completed','delivered'].includes(job.status) && can('workshop_status');
+        const isCancelled = job.status==='cancelled';
         showDialog('Workshop job #' + job.id, details([
             ['Customer name',job.customer_name],['Phone',job.customer_phone],['Bike Model',job.bike_name],
             ['Bike Number',job.registration_number],['Staff name',job.mechanic],['Status',jobLabel(job.status),true],
             ['Work Description',job.complaints],['Job date',job.created_on],['Mileage',job.mileage],
             ['Last oil change',job.oil_change_on],['Next oil change',job.next_oil_change_on],['Estimated cost',format(job.estimated_cost)],
-            ['Total Bill',format(job.total_bill)],['Paid',format(job.paid_amount)],['Remaining',jobBalance(job),paymentBalance]
-        ]) + '<div id="jobPartsView"></div>' + `<form id="labourForm" class="form-grid">${billFields(job)}${submit('Save Bill')}</form>` +
+            ['Total Bill',format(job.total_bill)],['Paid',format(job.paid_amount)],['Remaining',isCancelled ? 0 : jobBalance(job),paymentBalance]
+        ]) + '<div id="jobPartsView"></div>' + (isCancelled ? '' : `<form id="labourForm" class="form-grid">${billFields(job)}${submit('Save Bill')}</form>`) +
+            (cancellable ? `<div class="actions"><button id="cancelWorkshop" type="button">${isCancelled ? 'Record Cancellation Adjustment' : 'Cancel Job'}</button></div>` : '') +
             (options.length && can('workshop_status') ? `<form id="jobStatusForm" class="form-grid">
                 ${select('status','Next status',jobOptions(options),'','Choose a status')}${submit('Update status')}</form>` : ''));
         operations.workshopExtras(job,saveWorkshopView).catch(showPageError);
+        $('#cancelWorkshop')?.addEventListener('click',()=>businessPages.cancelJob(job,saveWorkshopView).catch(showPageError));
         const billForm = $('#labourForm');
-        saveForm(billForm, async fields => {
+        if (billForm) saveForm(billForm, async fields => {
             const updated = await request('/workshop/' + id + '/bill', {method:'PATCH',body:fields});
             await saveWorkshopView(updated,billForm);
         });
@@ -593,12 +651,12 @@
             ['Remaining',balance,paymentBalance]
         ]) + `<form id="workshopPaymentForm" class="form-grid">
             ${amount('amount','Amount collected',{required:true,min:.01,max:balance})}
-            ${paymentPreview()}${submit('Save Payment')}</form>`);
+            ${paymentPreview()}${accountField()}${submit('Save Payment')}</form>`);
         const form = $('#workshopPaymentForm');
         bindPaymentPreview(form,balance);
         saveForm(form, async (fields, key) => {
             const result = await request('/workshop/' + id + '/payments', {
-                method:'POST',body:{amount:Number(fields.amount),request_key:key}
+                method:'POST',body:{...fields,amount:Number(fields.amount),request_key:key}
             });
             await saveWorkshopView(result.job,form);
         });
@@ -638,7 +696,7 @@
     };
 
     function hasSeparateRecords(page) {
-        return ['workshop','mechanics','workshop-ledger','users','rules','capital'].includes(page) || Object.hasOwn(directoryPages, page);
+        return Object.hasOwn(workshopPages,page) || businessPages.hasPage(page) || ['mechanics','workshop-ledger','users','rules','capital'].includes(page) || Object.hasOwn(directoryPages, page);
     }
 
     async function showDirectory(page) {
@@ -675,7 +733,7 @@
                 `<form id="partSaleForm" class="form-grid">
                 ${label('Quantity',`<input type="number" name="quantity" value="1" min="1" max="${esc(row.quantity)}" step="1" required>`)}
                 ${amount('unit_price','Unit sale price',{initial:Number(row.sell_price) > 0 ? row.sell_price : '',min:.01,required:true})}
-                ${salesmanInput()}
+                ${salesmanInput()}${accountField()}
                 ${submit('Record Sale')}</form>`);
             saveForm($('#partSaleForm'), async (fields, key) => {
                 const { part } = await request(path + '/' + row.id + '/sales', {
@@ -753,23 +811,23 @@
 
     function renderNavigation(page) {
         const navigation = $('#navigation');
-        navigation.innerHTML = Object.entries(nav).map(([key,[title,icon]]) => {
-            if (key === 'purchase') return '';
-            if (key === 'stock') return (!allowedPage('stock')&&!allowedPage('purchase')) ? '' : `<details class="inventory-menu" ${inventoryOpen ? 'open' : ''}>
-                <summary><span aria-hidden="true">▦</span>Inventory</summary>
-                <div class="inventory-submenu">
-                    ${allowedPage('stock')?`<a href="#stock" ${page === 'stock' ? 'aria-current="page"' : ''}>Stock</a>`:''}
-                    ${allowedPage('purchase')?`<a href="#purchase" ${page === 'purchase' ? 'aria-current="page"' : ''}>Buy</a>`:''}
-                </div></details>`;
-            if (!allowedPage(key)) return '';
-            const active = key === page || (key === 'sell' && page === 'sold') || (key === 'qist' && page === 'qist-dues') ||
-                (key === 'mechanics' && page === 'workshop-ledger') || (key === 'settings' && ['capital','users','rules'].includes(page));
-            return `<a href="#${key}" ${active ? 'aria-current="page"' : ''}><span aria-hidden="true">${icon}</span>${title}</a>`;
+        const link = (key,icon = '') => {
+            const name = key==='purchase' ? 'Buy' : key==='workshop' ? 'Job Cards' : key==='settings' ? 'Business Settings' : pageNames[key];
+            return `<a href="#${key}" ${key===page ? 'aria-current="page"' : ''}>${icon ? `<span aria-hidden="true">${icon}</span>` : ''}${esc(name)}</a>`;
+        };
+        navigation.innerHTML = navigationSections.map(([title,icon,pages]) => {
+            const visible = pages.filter(allowedPage);
+            if (!visible.length) return '';
+            if (pages.length===1) return link(visible[0],icon);
+            const active = visible.includes(page);
+            return `<details class="inventory-menu" data-nav-section="${esc(title)}" ${active || openNavigation.get(title) ? 'open' : ''}>
+                <summary><span aria-hidden="true">${icon}</span>${esc(title)}</summary>
+                <div class="inventory-submenu">${visible.map(key=>link(key)).join('')}</div>
+            </details>`;
         }).join('');
-        const inventory = navigation.querySelector('.inventory-menu');
-        inventory?.addEventListener('toggle', () => {
-            if (inventory.isConnected) inventoryOpen = inventory.open;
-        });
+        navigation.querySelectorAll('[data-nav-section]').forEach(group=>group.addEventListener('toggle',()=>{
+            if (group.isConnected) openNavigation.set(group.dataset.navSection,group.open);
+        }));
     }
 
     async function renderPage() {
@@ -777,7 +835,6 @@
         const page = currentPage();
         if (page !== lastPage) {
             if (lastPage) window.showKBLoader?.();
-            if (['stock','purchase'].includes(page)) inventoryOpen = true;
             lastPage = page;
             $('#breadcrumb').textContent = titles[page] || pageNames[page];
             renderNavigation(page);
@@ -803,7 +860,11 @@
         else if (page === 'expenses') { view.innerHTML = expensePage(); bindExpense(); }
         else if (page === 'qist' || page === 'qist-dues') view.innerHTML = qistPage(page);
         else if (page === 'profit') view.innerHTML = profitPage();
-        else if (page === 'workshop') await showWorkshop();
+        else if (Object.hasOwn(workshopPages,page)) {
+            workshopTab = workshopPages[page];
+            await showWorkshop();
+        }
+        else if (businessPages.hasPage(page)) await businessPages.open(page);
         else if (page === 'mechanics' || page === 'workshop-ledger') await operations.openLedger(page);
         else if (page === 'users') await operations.openUsers();
         else if (page === 'rules') await operations.openRules();
@@ -1149,7 +1210,7 @@
         ]) + `<form id="collectForm" class="form-grid">
             ${amount('amount','Amount collected',{initial:Math.min(Number(plan.monthly_qist),Number(plan.remaining)),required:true,min:.01,max:plan.remaining})}
             ${input('next_date','Updated next date (optional)',{type:'date',extra:`min="${data.today}"`})}
-            ${paymentPreview('qistRemainingPreview')}${submit('Save Payment')}</form>`);
+            ${paymentPreview('qistRemainingPreview')}${accountField()}${submit('Save Payment')}</form>`);
         const form = $('#collectForm');
         bindPaymentPreview(form,plan.remaining);
         saveForm(form, async (fields, key) => {
@@ -1198,6 +1259,7 @@
         const action = event.target.closest('button');
         if (!action) return;
         if (action.id === 'dayClose') confirmDayClose();
+        else if (action.id === 'earlierClose') earlierDayClose();
         else if (action.hasAttribute('data-job')) workshopDetails(action.dataset.job);
         else if (action.hasAttribute('data-job-payment')) collectWorkshopPayment(action.dataset.jobPayment);
         else if (action.hasAttribute('data-profit-source')) profitBreakdown(action.dataset.profitSource);
@@ -1254,7 +1316,13 @@
             form.reset();
             notice('', false, output);
             await refresh();
-        } catch (error) { notice(error.message, true, output); }
+        } catch (error) {
+            if (error.message === 'Enter a fresh authenticator code or recovery code.') {
+                $('#loginCode').hidden = false;
+                form.elements.code.focus();
+            }
+            notice(error.message, true, output);
+        }
         finally { button.disabled = false; }
     });
     $('#signOut').addEventListener('click', async () => {
@@ -1394,9 +1462,12 @@
         renderPage().catch(showPageError);
         refresh({ pageOpen:true });
     });
-    const operations = window.kbOperations({$,view,esc,t,request,label,input,amount,select,table,panel,heading,button,submit,
+    const operationTools = {$,view,esc,t,request,label,input,amount,select,table,panel,heading,button,submit,
         saveForm,showDialog,details,notice,format,cents,metrics,message,signedProfit,exportLinks,can,allowedPage,currentPage,renderPage,
-        showPageError,getData:()=>data,closeDialog:()=>{ if (receiptDialog.open) receiptDialog.close(); }});
+        showPageError,accountField,getData:()=>data,closeDialog:()=>{ if (receiptDialog.open) receiptDialog.close(); },
+        signInView,refresh};
+    const operations = window.kbOperations(operationTools);
+    const businessPages = window.kbBusinessPages(operationTools);
     let checkingAccess = false;
     async function checkPermissions() {
         if (!data?.user || data.user.admin || document.hidden || checkingAccess) return;

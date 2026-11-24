@@ -11,6 +11,7 @@
     <script src="/notifications.js" defer></script>
     <script src="/daily-chart.js" defer></script>
     <script src="/operations.js" defer></script>
+    <script src="/business-pages.js" defer></script>
     <script src="/kb-loader.js" defer></script>
     <script src="/app.js" defer></script>
 </head>
@@ -25,6 +26,7 @@
             </div>
             <label>Username<input name="username" value="admin" autocomplete="username" required maxlength="40"></label>
             <label>Password<input name="password" type="password" autocomplete="current-password" required></label>
+            <label id="loginCode" hidden>Authenticator or recovery code<input name="code" autocomplete="one-time-code" maxlength="24"></label>
             <button class="primary" type="submit">Sign in</button>
             <p id="loginStatus" class="notice" role="status"></p>
         </form>

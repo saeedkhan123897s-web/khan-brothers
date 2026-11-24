@@ -1,16 +1,20 @@
 'use strict';
 
+const { AsyncLocalStorage } = require('node:async_hooks');
+
 function problem(status, message) {
     return Object.assign(new Error(message), { status });
 }
 
 function createSupabase(settings, fetcher = fetch) {
+    const actors = new AsyncLocalStorage();
     const { SUPABASE_URL: url, SUPABASE_KEY: key } = settings;
     async function call(path, { method = 'GET', body, headers, binary = false } = {}) {
         if (!url || !key) throw problem(503, 'Configure SUPABASE_URL and SUPABASE_KEY to connect the database.');
         const response = await fetcher(url.replace(/\/$/, '') + path, {
             method,
             headers: { apikey: key, ...(!key.startsWith('sb_secret_') ? { Authorization: 'Bearer ' + key } : {}),
+                ...(actors.getStore() ? { 'X-KB-Actor': actors.getStore() } : {}),
                 ...(body !== undefined ? { 'Content-Type': 'application/json' } : {}), ...headers },
             body: body === undefined || Buffer.isBuffer(body) ? body : JSON.stringify(body),
             signal: AbortSignal.timeout(12000)
@@ -38,6 +42,11 @@ function createSupabase(settings, fetcher = fetch) {
             if (page.length < size) return rows;
         }
     }
+    async function page(table, { columns, order = 'id.desc', limit, offset }) {
+        const rows = await rest(table + '?' + new URLSearchParams({ select:columns.join(','), order, limit, offset }));
+        if (!Array.isArray(rows)) throw problem(502, 'The database returned an unexpected response.');
+        return rows;
+    }
     async function update(table, id, data, filters = {}) {
         const rows = await rest(table + '?' + new URLSearchParams({ ...filters, id: 'eq.' + id }), {
             method: 'PATCH', body: data, headers: { Prefer: 'return=representation' }
@@ -56,7 +65,7 @@ function createSupabase(settings, fetcher = fetch) {
     }
     const bucket = '/storage/v1/object';
     return {
-        list, insert, update,
+        list, page, insert, update, withActor:(user,handler)=>actors.run(user.username,handler),
         rpc: (name, body) => rest('rpc/' + name, { method: 'POST', body }),
         upload: (name, data, type) => call(bucket + '/kb-bike-photos/' + name,
             { method: 'POST', body: data, headers: { 'Content-Type': type } }),

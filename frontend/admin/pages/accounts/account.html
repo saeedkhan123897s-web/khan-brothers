@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Accounts | Khan Brothers</title>
+<link rel="stylesheet" href="/assets/css/admin/erp.css">
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Inter,Arial,sans-serif;background:#f1f5f9;color:#0f172a}
+.wrap{max-width:1280px;margin:0 auto;padding:18px}
+.top h1{font-size:26px;margin:0}.top p{color:#64748b;margin:4px 0 0}
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:18px 0}
+@media(max-width:800px){.cards{grid-template-columns:repeat(2,1fr)}}
+.card{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:14px;border-top:4px solid #2563eb}
+.card small{color:#64748b;font-weight:600}.card b{font-size:22px;display:block;margin:6px 0 2px}.card span{font-size:12px;color:#64748b}
+.tabs{display:flex;gap:8px;background:#fff;padding:8px;border-radius:12px;border:1px solid #e2e8f0;flex-wrap:wrap}
+.tab{padding:11px 16px;border:0;border-radius:10px;background:#f1f5f9;cursor:pointer;font-weight:700;font-size:13px}
+.tab.active{background:#0f172a;color:#fff}
+.box{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:0;margin-top:14px;overflow:hidden}
+iframe{width:100%;height:750px;border:0;background:#fff}
+.btn{border:0;border-radius:10px;padding:11px 16px;font-weight:700;cursor:pointer;background:#0f172a;color:#fff}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+<div class="top"><h1>Accounts</h1><p>Complete accounts - Cash, Bank, Ledger, Payments, Expenses, Reports</p></div>
+<button class="btn" onclick="window.location.href='/admin/dashboard.html'">← Back to Dashboard</button>
+</div>
+
+<div class="cards">
+<div class="card" style="border-top-color:#2563eb"><small>💵 Cash in Hand</small><b id="cash">Rs. 0</b><span>Cash Book se</span></div>
+<div class="card" style="border-top-color:#16a34a"><small>🏦 Bank Balance</small><b id="bank">Rs. 0</b><span>Bank se</span></div>
+<div class="card" style="border-top-color:#f59e0b"><small>📥 Lena Hai (Receivable)</small><b id="rec">Rs. 0</b><span>Customer se</span></div>
+<div class="card" style="border-top-color:#ef4444"><small>📤 Dena Hai (Payable)</small><b id="pay">Rs. 0</b><span>Supplier ko</span></div>
+</div>
+
+<div class="tabs" id="tabs"></div>
+
+<div class="box"><iframe id="frame" src="cashbook.html"></iframe></div>
+</div>
+
+<script>
+let pages=[
+  {name:"📊 Dashboard",file:"reports.html"},
+  {name:"💵 Cash Book",file:"cashbook.html"},
+  {name:"🏦 Bank",file:"bank.html"},
+  {name:"📒 General Ledger",file:"general-ledger.html"},
+  {name:"💳 Payments",file:"payment.html"},
+  {name:"🛒 Purchases",file:"purchases.html"},
+  {name:"💸 Expenses",file:"expenses.html"},
+  {name:"🔧 Workshop",file:"workshop.html"},
+  {name:"📈 Trial Balance",file:"trial-balance.html"},
+  {name:"📑 Reports",file:"reports.html"},
+  {name:"🔍 Audit Trail",file:"audit/audit-trail.html"},
+  {name:"🧪 Account Test",file:"account-test.html"},
+];
+let box=document.getElementById('tabs');
+pages.forEach((p,i)=>{
+  let b=document.createElement('button');
+  b.className='tab'+(i===1?' active':'');
+  b.textContent=p.name;
+  b.onclick=()=>{
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    document.getElementById('frame').src=p.file;
+  };
+  box.appendChild(b);
+});
+// Demo totals - baad me real data se jud jayega
+let pays=JSON.parse(localStorage.getItem('kb_payments')||'[]');
+let total=pays.reduce((s,d)=>s+d.amount,0);
+document.getElementById('cash').textContent='Rs. '+total.toLocaleString();
+document.getElementById('bank').textContent='Rs. '+total.toLocaleString();
+document.getElementById('rec').textContent='Rs. 1,000';
+document.getElementById('pay').textContent='Rs. 0';
+</script>
+</body>
+</html>
