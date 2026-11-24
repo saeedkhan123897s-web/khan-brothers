@@ -20,22 +20,31 @@ function createSupabase(settings, fetcher = fetch) {
             return response.status === 204 ? null : response.json();
         }
         const payload = await response.json().catch(() => ({}));
-        if (payload.code === '23505') throw problem(409, payload.message === 'This bike is already sold.'
+        if (payload.code === '23505') throw problem(409, ['This bike is already sold.', 'Job status changed. Refresh and try again.'].includes(payload.message)
             ? payload.message : 'A record with these details already exists.');
         if (payload.code === 'P0002') throw problem(404, payload.message);
         if (payload.code === '22023') throw problem(400, payload.message);
+        if (payload.code === '23503') throw problem(400, 'The selected related record does not exist.');
         throw problem(502, 'Supabase could not process the request. Check the database configuration and schema.');
     }
     const rest = (target, options) => call('/rest/v1/' + target, options);
-    async function list(table) {
+    async function list(table, filters = {}) {
         const rows = [];
         const size = 500;
         for (;;) {
-            const page = await rest(table + '?' + new URLSearchParams({ select: '*', order: 'id.asc', limit: size, offset: rows.length }));
+            const page = await rest(table + '?' + new URLSearchParams({ ...filters, select: '*', order: 'id.asc', limit: size, offset: rows.length }));
             if (!Array.isArray(page)) throw problem(502, 'The database returned an unexpected response.');
             rows.push(...page);
             if (page.length < size) return rows;
         }
+    }
+    async function update(table, id, data, filters = {}) {
+        const rows = await rest(table + '?' + new URLSearchParams({ ...filters, id: 'eq.' + id }), {
+            method: 'PATCH', body: data, headers: { Prefer: 'return=representation' }
+        });
+        if (!rows[0] && Object.keys(filters).length) throw problem(409, 'Stock changed. Refresh the page and try again.');
+        if (!rows[0]) throw problem(404, 'Record not found.');
+        return rows[0];
     }
     async function insert(table, data) {
         const rows = await rest(table + '?on_conflict=request_key', {
@@ -47,7 +56,7 @@ function createSupabase(settings, fetcher = fetch) {
     }
     const bucket = '/storage/v1/object';
     return {
-        list, insert,
+        list, insert, update,
         rpc: (name, body) => rest('rpc/' + name, { method: 'POST', body }),
         upload: (name, data, type) => call(bucket + '/kb-bike-photos/' + name,
             { method: 'POST', body: data, headers: { 'Content-Type': type } }),

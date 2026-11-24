@@ -9,18 +9,25 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { rateLimit } = require('express-rate-limit');
 const { createSupabase, problem } = require('./supabase');
-const { run } = require('./routes/shared');
+const { date, id, run, today } = require('./routes/shared');
 const { state, exportReport } = require('./reports');
 const assets = require('./spa-assets');
+const { directory, settingsRouter } = require('./routes/business');
 const routes = {
     bikes: require('./routes/bikes'),
     sales: require('./routes/sales'),
     customers: require('./routes/customers'),
     qist: require('./routes/qist'),
-    expenses: require('./routes/expenses')
+    expenses: require('./routes/expenses'),
+    workshop: require('./routes/workshop'),
+    suppliers: db => directory(db, 'suppliers'),
+    'spare-parts': db => directory(db, 'parts'),
+    staff: db => directory(db, 'staff'),
+    settings: settingsRouter
 };
 
 function createApp(settings = process.env, db = createSupabase(settings), app = express()) {
+    const businessTimeZone = settings.BUSINESS_TIME_ZONE || 'Asia/Muscat';
     const cookieName = 'kb_business_session';
     const secure = settings.VERCEL === '1' || settings.NODE_ENV === 'production';
     const cookieOptions = { httpOnly: true, sameSite: 'strict', secure, path: '/' };
@@ -70,7 +77,29 @@ function createApp(settings = process.env, db = createSupabase(settings), app = 
     });
 
     app.post('/api/logout', (_req, res) => res.clearCookie(cookieName, cookieOptions).json({ signedIn: false }));
-    app.get('/api/state', run(async (_req, res) => res.json(await state(db))));
+    app.get('/api/state', run(async (req, res) => {
+        if (req.query.daily !== '1') return res.json(await state(db));
+        const [snapshot, daily] = await Promise.all([
+            state(db), db.rpc('kb_daily_overview', { p_day:today(businessTimeZone), p_timezone:businessTimeZone })
+        ]);
+        res.json({ ...snapshot, daily });
+    }));
+    app.post('/api/daily-report/close', run(async (req, res) => {
+        const day = date(req.body.date, null);
+        if (!day) throw problem(400, 'Enter a valid date.');
+        res.json(await db.rpc('kb_close_day', { p_day:day, p_timezone:businessTimeZone }));
+    }));
+    app.post('/api/daily-report/repurchase/:id', run(async (req, res) => {
+        const { quantity } = req.body;
+        if (!Number.isInteger(quantity) || quantity < 0 || quantity > 5) throw problem(400, 'Enter a valid quantity.');
+        const part = await db.update('kb_spare_parts', id(req.params.id),
+            { repurchase_checked_at:new Date().toISOString() }, { quantity:'eq.'+quantity });
+        res.json({ id:part.id });
+    }));
+    app.get('/api/notifications', run(async (_req, res) => {
+        res.json(await db.rpc('kb_notification_feed', { p_timezone:businessTimeZone }));
+    }));
+    app.get('/api/profit/entries', run(async (_req, res) => res.json(await db.rpc('kb_profit_entries', {}))));
     for (const [resource, router] of Object.entries(routes)) app.use('/api/' + resource, router(db));
     app.get('/api/export/:section', run(async (req, res) => {
         const file = await exportReport(db, req.params.section, req.query.format);

@@ -9,7 +9,7 @@ const sum = (rows, key) => rows.reduce((total, row) => total + pennies(row[key])
 const byId = rows => new Map(rows.map(row => [String(row.id), row]));
 
 async function state(db) {
-    const { bikes, sales, customers, qist, expenses } = await db.rpc('kb_snapshot', {});
+    const { bikes, sales, customers, qist, expenses, settings, profit } = await db.rpc('kb_snapshot', {});
     const bikeById = byId(bikes);
     const salesByBike = new Map(sales.map(sale => [String(sale.bike_id), sale]));
     const qistBySale = new Map(qist.map(plan => [String(plan.sale_id), plan]));
@@ -25,6 +25,8 @@ async function state(db) {
     const day = today();
     return {
         today: day,
+        settings,
+        profit,
         bikes: bikes.map(bike => {
             const sale = salesByBike.get(String(bike.id));
             return { ...bike, customer_name: sale?.customer_name, payment_method: sale?.payment_method || bike.purchase_method,
@@ -38,8 +40,9 @@ async function state(db) {
         qist: qist.map(plan => {
             const sale = saleById.get(String(plan.sale_id));
             const bike = bikeById.get(String(sale?.bike_id));
-            return { ...plan, customer_name: sale?.customer_name, bike_name: bike?.bike_name };
-        }).sort((a, b) => (a.next_date ?? '9999').localeCompare(b.next_date ?? '9999')),
+            return { ...plan, customer_name: sale?.customer_name, customer_phone: sale?.customer_phone,
+                bike_name: bike?.bike_name, paid: (pennies(plan.total) - pennies(plan.remaining)) / 100 };
+        }).sort((a, b) => (a.next_date ?? '9999').localeCompare(b.next_date ?? '9999') || a.id - b.id),
         expenses: expenses.sort((a, b) => b.date.localeCompare(a.date) || b.id - a.id)
     };
 }
@@ -47,11 +50,12 @@ async function state(db) {
 const columns = {
     stock: [['bike_name','Bike'],['model','Model'],['chassis_no','Chassis'],['plate_no','Plate'],['purchase_price','Purchase'],
         ['repair_cost','Repair'],['other_cost','Other'],['total_cost','Total cost'],['sell_price','Expected sell price'],['expected_profit','Expected profit']],
-    sold: [['bike_name','Bike'],['model','Model'],['chassis_no','Chassis'],['customer_name','Customer'],['date','Date'],
+    sold: [['bike_name','Bike'],['model','Model'],['chassis_no','Chassis'],['customer_name','Customer'],['salesman','Salesman'],['date','Date'],
         ['payment_method','Payment'],['sell_price','Sold price'],['cost_at_sale','Cost'],['profit','Real profit']],
     customers: [['name','Customer'],['phone','Phone'],['cnic','CNIC'],['qist_balance','Qist balance']],
-    expenses: [['date','Date'],['type','Category'],['description','Description'],['amount','Amount']]
+    profit: [['bike_name','Bike Name'],['purchase_price','Buy Price'],['sell_price','Sell Price'],['profit','Profit']]
 };
+const profitSourceLabels = { bike:'Bike Sell Profit', parts:'Spare Parts Profit', labour:'Handwork / Labour Profit' };
 
 async function exportReport(db, section, format) {
     if (!['stock','sold','customers','profit'].includes(section) || !['csv','excel'].includes(format)) {
@@ -59,16 +63,15 @@ async function exportReport(db, section, format) {
     }
     const data = await state(db);
     const stock = data.bikes.filter(row => row.status === 'stock');
-    const sheets = [{ name: section === 'profit' ? 'Sold motorcycles' : section,
-        columns: columns[section === 'profit' ? 'sold' : section],
+    const sheets = [{ name: section === 'profit' ? 'Sold Bikes' : section,
+        columns: columns[section],
         rows: section === 'stock' ? stock : section === 'customers' ? data.customers : data.sold }];
     if (section === 'profit') {
-        const gross = sum(data.sold, 'profit');
-        const overhead = sum(data.expenses, 'amount');
+        if (!data.profit) throw problem(503, 'Profit data is unavailable.');
+        const leading = data.profit.leading.map(source => profitSourceLabels[source]).join(' / ');
         sheets.unshift({ name: 'Profit summary',
-            columns: [['gross_profit','Sale profit'],['expenses','Expenses'],['net_profit','Net profit']],
-            rows: [{ gross_profit: gross, expenses: overhead, net_profit: (pennies(gross) - pennies(overhead)) / 100 }] });
-        sheets.push({ name: 'Expenses', columns: columns.expenses, rows: data.expenses });
+            columns: [...Object.entries(profitSourceLabels), ['net','Total Net Profit'], ['leading','Highest Profit Source']],
+            rows: [{ ...data.profit, leading: leading || 'No profitable source' }] });
     }
     return spreadsheet(sheets, format);
 }

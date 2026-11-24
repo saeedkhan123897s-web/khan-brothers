@@ -7,6 +7,9 @@
     <title>Khan Brothers | Motorcycle Business</title>
     <link rel="icon" href="/kb.png" type="image/png">
     <link rel="stylesheet" href="/style.css">
+    <script src="/i18n.js" defer></script>
+    <script src="/notifications.js" defer></script>
+    <script src="/daily-chart.js" defer></script>
     <script src="/kb-loader.js" defer></script>
     <script src="/app.js" defer></script>
 </head>
@@ -15,16 +18,19 @@
         <form id="loginForm" class="panel">
             <img src="/kb.png" alt="Khan Brothers" width="64" height="64">
             <h1>Staff sign-in</h1>
+            <div class="actions">
+                <button type="button" class="theme-toggle" aria-pressed="false">☀ Light</button>
+                <select class="language" aria-label="Language"><option value="en">EN</option><option value="ur">اردو</option><option value="roman">Roman Urdu</option></select>
+            </div>
             <label>Password<input name="password" type="password" autocomplete="current-password" required></label>
             <button class="primary" type="submit">Sign in</button>
             <p id="loginStatus" class="notice" role="status"></p>
         </form>
     </main>
     <div id="workspace" class="workspace" hidden>
-        <button type="button" id="drawerBackdrop" class="drawer-backdrop" aria-label="Close navigation" hidden></button>
+        <button type="button" id="drawerBackdrop" class="drawer-backdrop" aria-label="Close navigation" tabindex="-1" hidden></button>
         <aside id="sidebar" class="sidebar" aria-label="Main sidebar">
-            <a class="brand" href="#dashboard"><img src="/kb.png" alt="" width="46" height="46"><span>Khan<br>Brothers</span></a>
-            <button type="button" class="drawer-close" aria-label="Close navigation">×</button>
+            <a class="brand" href="#dashboard"><img src="/kb.png" alt="" width="46" height="46"><span>Khan Brothers</span></a>
             <nav id="navigation" aria-label="Main navigation"></nav>
             <button type="button" id="signOut" class="sign-out">Sign out <span aria-hidden="true">↪</span></button>
             <div class="resize" role="separator" tabindex="0" aria-label="Resize sidebar" aria-orientation="vertical"
@@ -32,10 +38,22 @@
         </aside>
         <div id="pageRegion" class="page-region">
             <header class="topbar">
-                <button type="button" class="drawer-open" aria-controls="sidebar" aria-expanded="false" aria-label="Open navigation">☰</button>
-                <button type="button" id="collapse" class="collapse" aria-controls="sidebar" aria-expanded="true">Collapse sidebar</button>
+                <button type="button" id="menuToggle" class="menu-toggle" aria-controls="sidebar" aria-expanded="true" aria-label="Toggle navigation">☰</button>
                 <span id="breadcrumb">Dashboard</span>
-                <button type="button" id="refresh" class="refresh" aria-label="Refresh data" title="Refresh data">⟳</button>
+                <div id="toolbar" class="toolbar">
+                    <span id="lastUpdated" class="last-updated" data-verbatim></span>
+                    <button type="button" id="refresh" class="refresh" aria-label="Refresh data" title="Refresh data"><span aria-hidden="true">⟳</span></button>
+                    <button type="button" id="notificationBell" class="notification-bell" aria-label="Notifications"
+                        aria-controls="notificationPanel" aria-expanded="false"><span aria-hidden="true">🔔</span>
+                        <span id="notificationCount" class="notification-count" data-verbatim hidden></span></button>
+                    <button type="button" class="theme-toggle" aria-pressed="false">☀ Light</button>
+                    <select class="language" aria-label="Language"><option value="en">EN</option><option value="ur">اردو</option><option value="roman">Roman Urdu</option></select>
+                    <section id="notificationPanel" class="notification-panel" aria-labelledby="notificationHeading" hidden>
+                        <h2 id="notificationHeading">Notifications</h2>
+                        <p id="notificationStatus" class="notice" role="status"></p>
+                        <ul id="notificationList" class="notification-list"></ul>
+                    </section>
+                </div>
             </header>
             <main class="content" id="mainContent">
                 <p id="status" class="notice" role="status"></p>

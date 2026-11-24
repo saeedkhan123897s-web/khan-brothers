@@ -4,7 +4,7 @@ The single-page app and the original MySQL ERP run separately. The old ERP still
 
 ## Set up the database and sign-in
 
-1. In the SQL Editor of a Supabase project for this app, run [schema.sql](../database/supabase/schema.sql). It creates the tables, protected photo bucket and database functions for sales and collections.
+1. In the SQL Editor of a Supabase project for this app, run [schema.sql](../database/supabase/schema.sql), then apply the numbered migrations in [database/supabase](../database/supabase) in order. On an existing database, apply only the pending migrations.
 2. Set `SUPABASE_URL` to the Supabase project URL. Set `SUPABASE_KEY` to the secret API key or legacy service-role key. Express uses it to access the database and photo storage.
 3. Set `APP_PASSWORD_HASH` to a bcrypt hash of the staff password. Set `APP_SESSION_SECRET` to an independent random secret of at least 32 characters.
 
@@ -29,7 +29,13 @@ PORT=3100 npm run start:spa
 
 Open [http://localhost:3100](http://localhost:3100) and enter the staff password. Purchase, Stock, Sales, Profit, Expenses, Customers and Qist use the same page with hash navigation.
 
-The export buttons download current database records as CSV or Excel. Profit exports contain the sales margin, business expenses and net profit. Qist totals include the agreed flat interest when entered at sale.
+The export buttons download current database records as CSV or Excel. Profit exports contain the three profit sources, their combined total and the four-column sold-bike summary. Use **Sell part** in Spare Parts to record a sale at its actual unit price. Enter the labour charge and cost in the details of a completed or delivered workshop job. Qist totals include the agreed flat interest when entered at sale.
+
+Select a Profit Report box to see transaction amounts and totals by salesperson or mechanic. Enter the salesperson on the sale form, or add a missing name in the transaction details.
+
+In Workshop, the total bill is the parts charge plus the labour charge. Use **Details** to update the bill and **Collect Payment** to record actual receipts. Ready and delivered jobs appear in **Repair History**. Search either job list by bike number or mobile number.
+
+The Daily Report adds recorded sale receipts, Qist collections and workshop payments to the latest saved closing balance, then deducts operating expenses. The first opening balance is zero. Closing a day saves the report and blocks new postings to that date. The repurchase list targets 10 units per low-stock part and clears a tick when the part's inventory quantity changes.
 
 ## Vercel
 

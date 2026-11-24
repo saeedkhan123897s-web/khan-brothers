@@ -7,6 +7,11 @@ const { methods, today, text, money, date, id, requestKey, run } = require('./sh
 module.exports = function sales(db) {
     const router = express.Router();
     router.get('/', run(async (_req, res) => res.json(await db.list('sales'))));
+    router.patch('/:id/salesman', run(async (req, res) => {
+        const salesman = text(req.body.salesman, 'Salesman', 100, true);
+        const updated = await db.update('sales', id(req.params.id), { salesman });
+        res.json({ salesman: updated.salesman });
+    }));
     router.post('/', run(async (req, res) => {
         const data = req.body;
         const method = data.payment_method;
@@ -17,6 +22,7 @@ module.exports = function sales(db) {
         if (!/^[0-9+()\s-]+$/.test(phone) || phone.replace(/\D/g, '').length < 7) throw problem(400, 'Enter a valid phone number.');
         if (cnic && !/^(?:\d{13}|\d{5}-\d{7}-\d)$/.test(cnic)) throw problem(400, 'Enter a valid 13-digit CNIC.');
         const sale = { customer_name: name, customer_phone: phone, customer_cnic: cnic,
+            salesman: text(data.salesman, 'Salesman', 100),
             bike_price: money(data.sell_price, 'Sell price', { min: .01 }), date: today(),
             payment_method: method, request_key: requestKey(data.request_key) };
         if (method === 'qist') Object.assign(sale, {
