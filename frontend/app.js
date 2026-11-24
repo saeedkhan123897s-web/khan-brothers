@@ -12,10 +12,12 @@
     const nav = {
         dashboard: ['Dashboard','⌂'], 'daily-report': ['Daily Report','◷'], purchase: ['Purchase','＋'], stock: ['Stock','▦'], sell: ['Sell','⇄'],
         customers: ['Customers','◎'], suppliers: ['Suppliers','◇'], 'spare-parts': ['Spare Parts','⚙'], workshop: ['Workshop','🔧'],
-        qist: ['Qist','◷'], expenses: ['Expenses','−'], profit: ['Profit','▥'], staff: ['Staff','♙'], settings: ['Settings','⚙']
+        qist: ['Qist','◷'], expenses: ['Expenses','−'], profit: ['Profit','▥'], mechanics: ['Mechanic Ledger','◇'],
+        staff: ['Staff','♙'], settings: ['Settings','⚙']
     };
     const pageNames = { ...Object.fromEntries(Object.entries(nav).map(([key, value]) => [key, value[0]])),
-        sold: 'Sold Bikes', 'qist-dues': 'Paise Lene Wale' };
+        sold: 'Sold Bikes', 'qist-dues': 'Paise Lene Wale', 'workshop-ledger':'Workshop Ledger',
+        users:'Users',rules:'Rules Router',capital:'Capital / Investment' };
     const titles = { purchase: 'Purchase Bike', sell: 'Sell Bike', profit: 'Profit Report', qist: 'Qist / Udhar' };
     const esc = value => String(value ?? '').replace(/[&<>"']/g, letter =>
         ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[letter]);
@@ -36,8 +38,15 @@
     let inventoryOpen = false;
     let lastUpdated = 0;
     let viewHasDraft = false;
-    let chartDays = 7;
     const usesDailyReport = page => page === 'dashboard' || page === 'daily-report';
+    const pagePermissions = {'daily-report':'daily',expenses:'daily',purchase:'buy',sold:'sell','qist-dues':'qist',
+        suppliers:'parts','spare-parts':'parts',mechanics:'commission','workshop-ledger':'commission',staff:'settings'};
+    const can = key => Boolean(data?.user?.admin || (key !== 'capital' && data?.user?.permissions?.includes(key)));
+    function allowedPage(page) {
+        if (page === 'capital' || page === 'rules') return Boolean(data?.user?.admin);
+        if (page === 'users') return can('settings') && (can('users') || can('delete'));
+        return can(pagePermissions[page] || page);
+    }
 
     async function request(path, options = {}) {
         const init = { ...options, headers: { Accept: 'application/json', ...options.headers } };
@@ -91,10 +100,11 @@
         try {
             const snapshot = await request(usesDailyReport(currentPage()) ? '/state?daily=1' : '/state');
             if (revision !== dataRevision) return;
+            if (JSON.stringify(data?.user) !== JSON.stringify(snapshot.user)) lastPage = '';
             data = snapshot;
             workspace.hidden = false;
             $('#signIn').hidden = true;
-            window.kbNotifications?.start();
+            window.kbNotifications?.start(data.user);
             if (render && (!viewHasDraft || (!pageOpen && !announce)) && (!pageOpen || !hasSeparateRecords(lastPage))) {
                 await renderPage();
             }
@@ -134,7 +144,8 @@
     }
     const panel = (title, body, actions = '') =>
         `<section class="panel"><div class="panel-heading"><h2>${esc(title)}</h2>${actions}</div>${body}</section>`;
-    const button = (text, route, primary = false) => `<a class="button${primary ? ' primary' : ''}" href="#${route}">${esc(text)}</a>`;
+    const button = (text, route, primary = false) => allowedPage(route)
+        ? `<a class="button${primary ? ' primary' : ''}" href="#${route}">${esc(text)}</a>` : '';
     const heading = (page, actions = '') => `<header class="page-heading"><h1>${esc(titles[page] || pageNames[page])}</h1><div class="actions">${actions}</div></header>`;
     const formStatus = '<p class="notice wide" role="status"></p>';
     const submit = text => `<div class="actions wide"><button class="primary" type="submit">${esc(text)}</button></div>${formStatus}`;
@@ -144,9 +155,9 @@
             ['Payment',row => message(payment[row.payment_method])],['Sold price','sell_price','money'],['Total cost','cost_at_sale','money'],
             ['Real profit','profit','money'],['Receipt',row => `<button type="button" data-receipt="${esc(row.id)}">Receipt</button>`]],
         stock: [['Photo',row => photoPath.test(row.photo_url || '') ? `<img src="${esc(row.photo_url)}" alt="${esc(row.bike_name)}" loading="lazy">` : '—'],
-            ['Bike','bike_name'],['Model','model'],['Chassis','chassis_no'],['Status',row => message(statusText[row.status])],
+            ['Bike',row => esc(row.bike_name) + operations.overallLine(row)],['Model','model'],['Chassis','chassis_no'],['Status',row => message(statusText[row.status])],
             ['Purchase','purchase_price','money'],['Repair','repair_cost','money'],['Other','other_cost','money'],
-            ['Total cost','total_cost','money'],['Sell price','sell_price','money'],['Expected profit','expected_profit','money'],
+            ['Total cost','total_cost','money'],['Best Sell Price','sell_price','money'],['Expected profit',row=>signedProfit(row.expected_profit),'money'],
             ['Details',row => `<button type="button" data-bike="${esc(row.id)}">View bike</button>`]]
     };
 
@@ -160,20 +171,24 @@
 
     function metrics(entries) {
         return '<div class="metrics">' + entries.map(([title, value, target]) => {
+            if (target && !allowedPage(target)) return '';
             const content = `<span>${esc(title)}</span><strong>${esc(value)}</strong>`;
             return target ? `<a class="metric" href="#${target}">${content}</a>` : `<div class="metric">${content}</div>`;
         }).join('') + '</div>';
     }
 
     function exportLinks(section) {
-        return `<div class="actions"><a class="button" href="/api/export/${section}?format=csv">Export CSV</a>
-            <a class="button" href="/api/export/${section}?format=excel">Export Excel</a></div>`;
+        if (!can('download')) return '';
+        return `<details class="download-menu"><summary>Download Report</summary><div class="actions">
+            <a class="button" href="/api/export/${section}?format=pdf">PDF</a>
+            <a class="button" href="/api/export/${section}?format=excel">Excel</a>
+            <a class="button" href="/api/export/${section}?format=csv">CSV</a></div></details>`;
     }
 
     function saleTabs(page) {
         const pages = [['sell','Sell Bike'],['sold','Sold Bikes'],['qist','Qist / Udhar']];
         if (page === 'qist' || page === 'qist-dues') pages.push(['qist-dues',pageNames['qist-dues']]);
-        return '<nav class="tabs" aria-label="Sales pages">' + pages.map(
+        return '<nav class="tabs" aria-label="Sales pages">' + pages.filter(([key])=>allowedPage(key)).map(
             ([key, title]) => `<a class="button" href="#${key}" ${key === page ? 'aria-current="page"' : ''}>${title}</a>`
         ).join('') + '</nav>';
     }
@@ -233,25 +248,25 @@
     }
 
     function dashboard() {
-        const gross = sum(data.sold, 'profit');
+        const gross = data.profit?.net ?? sum(data.sold, 'profit');
         const expenses = sum(data.expenses, 'amount');
         const stock = data.bikes.filter(row => row.status === 'stock');
         const reminderThrough = new Date(Date.parse(data.today) + 7 * 86400000).toISOString().slice(0,10);
         const reminders = data.qist.filter(row => row.status === 'pending' && row.next_date <= reminderThrough);
         return `<section class="hero"><div><h1>${businessName()}</h1></div><img src="/kb.png" alt="" width="140" height="140"></section>` +
-            (data.daily ? dashboardComparison() + dashboardChart() + repurchasePanel() : '<p class="empty" role="status">Loading…</p>') +
-            panel('Qist reminders', reminders.length ? table(reminders, [['Customer','customer_name'],['Bike','bike_name'],['Due date','next_date'],
-                ['Monthly Qist','monthly_qist','money'],['Remaining','remaining','money']]) : '<p class="empty">No payments due in the next 7 days.</p>', button('View Qist','qist')) +
+            (data.daily ? dashboardComparison() + operations.dashboardCharts() + (can('parts') ? repurchasePanel() : '') : '<p class="empty" role="status">Loading…</p>') +
+            (can('qist') ? panel('Qist reminders', reminders.length ? table(reminders, [['Customer','customer_name'],['Bike','bike_name'],['Due date','next_date'],
+                ['Monthly Qist','monthly_qist','money'],['Remaining','remaining','money']]) : '<p class="empty">No payments due in the next 7 days.</p>', button('View Qist','qist')) : '') +
             panel('Daily hisaab', metrics([['Net Profit',format((cents(gross) - cents(expenses)) / 100),'profit'],
-                ['Total Profit',format(gross),'profit'],['Total Capital',format(sum(stock,'total_cost')),'stock'],
-                ['Stock Bikes',String(stock.length),'stock'],['Sold Bikes',String(data.sold.length),'sold']]));
+                ['Total Profit',format(gross),'profit'],['Stock Bikes',String(stock.length),'stock'],['Sold Bikes',String(data.sold.length),'sold']])) +
+            (can('capital') ? `<a class="metric capital-dashboard-card" href="#capital">${message('Total Investment')}<strong id="dashboardInvestment">—</strong></a>` : '');
     }
 
     function dashboardComparison() {
         const [yesterday,today] = data.daily.days.slice(-2);
         const percent = new Intl.NumberFormat(document.documentElement.lang, {style:'percent',maximumFractionDigits:1});
         const cards = [['Today Sale','sale','sold'],['Today Profit','profit','profit'],['Today Expense','expense','expenses']];
-        return '<div class="metrics daily-comparisons">' + cards.map(([label,field,route]) => {
+        return '<div class="metrics daily-comparisons">' + cards.filter(([,field])=>field!=='profit'||can('profit')).map(([label,field,route]) => {
             const difference = cents(today[field]) - cents(yesterday[field]);
             const previous = Math.abs(cents(yesterday[field]));
             const change = !difference ? '→ ' + percent.format(0)
@@ -259,33 +274,12 @@
             const direction = difference === 0 ? 'No change' : difference > 0 ? 'Up' : 'Down';
             const beneficial = field === 'expense' ? difference < 0 : difference > 0;
             const color = !difference ? '' : beneficial ? 'profit-gain' : 'profit-loss';
-            return `<a class="metric daily-comparison" href="#${route}">
+            const linked=allowedPage(route);
+            return `<${linked?'a':'div'} class="metric daily-comparison"${linked?` href="#${route}"`:''}>
                 ${message(label)}<strong>${esc(format(today[field]))}</strong>
                 <small>${message('Yesterday')} <bdi>${esc(format(yesterday[field]))}</bdi></small>
-                <bdi class="${color}" aria-label="${direction}" title="${previous || !difference ? direction : 'Yesterday was zero'}">${esc(change)}</bdi></a>`;
+                <bdi class="${color}" aria-label="${direction}" title="${previous || !difference ? direction : 'Yesterday was zero'}">${esc(change)}</bdi></${linked?'a':'div'}>`;
         }).join('') + '</div>';
-    }
-
-    function dashboardChart() {
-        const range = '<div class="actions">' + [[7,'Last 7 Days'],[30,'Last 30 Days']].map(([days,label]) =>
-            `<button type="button" data-chart-days="${days}" aria-pressed="${days === chartDays}">${label}</button>`).join('') + '</div>';
-        const legend = window.kbDailyChart.series.map(({field,title}) =>
-            `<li><i class="chart-key chart-${field}" aria-hidden="true"></i>${message(title)}</li>`).join('');
-        return panel('Daily comparison', `<ul class="chart-legend">${legend}</ul>
-            <canvas id="dailyChart" role="img" aria-label="Daily comparison chart"></canvas>
-            <details class="chart-values"><summary>View chart data</summary><div id="dailyChartValues"></div></details>`, range);
-    }
-
-    function drawDashboardChart() {
-        const canvas = $('#dailyChart');
-        if (!canvas) return;
-        const rows = data.daily.days.slice(-chartDays);
-        window.kbDailyChart.draw(canvas,rows);
-        $('#dailyChartValues').innerHTML = table(rows,[['Date','day'],
-            ...window.kbDailyChart.series.map(({title,field}) => [title,field,'money'])]);
-        for (const button of view.querySelectorAll('[data-chart-days]')) {
-            button.setAttribute('aria-pressed',String(Number(button.dataset.chartDays) === chartDays));
-        }
     }
 
     function repurchasePanel() {
@@ -307,9 +301,9 @@
             ['Today Qist Collected',format(report.qist_collected)],['Today Workshop Income',format(report.workshop_income)],
             ['Total Income',format(report.total_income)],['Today Expense',format(report.expense)],['Closing Balance',format(report.closing_balance)]
         ]);
-        return heading('daily-report',action) + panel('Daily balances', `<p class="daily-report-date"><bdi>${esc(report.date)}</bdi></p>
+        return heading('daily-report',action+exportLinks('daily')) + panel('Daily balances', `<p class="daily-report-date"><bdi>${esc(report.date)}</bdi></p>
             ${values}<p class="daily-report-note" data-message>Sale income includes Qist advances. Qist collections and workshop income use recorded payments.</p>`) +
-            repurchasePanel() + panel('Last 10 Day Closings', table(history,[
+            (can('parts') ? repurchasePanel() : '') + panel('Last 10 Day Closings', table(history,[
                 ['Date','date'],['Opening Balance','opening_balance','money'],['Total Income','total_income','money'],
                 ['Expense','expense','money'],['Closing Balance','closing_balance','money']
             ]));
@@ -340,14 +334,13 @@
         return heading('purchase', button('View Stock','stock')) + panel('Bike details', `<form id="purchaseForm" class="form-grid">
             ${input('bike_name','Bike Name',{required:true})}${input('model','Model',{required:true,max:100})}
             ${input('chassis_no','Chassis No',{max:80})}${input('plate_no','Plate No',{max:40})}
-            ${input('condition_engine','Engine condition',{max:120})}${input('condition_tyre','Tyre condition',{max:120})}
-            ${input('condition_body','Body condition',{max:120})}
+            ${operations.conditionFields()}
             ${input('purchased_on','Purchase date',{type:'date',value:data.today})}
             ${label('Bike photo',`<span class="file-picker"><input name="photo" type="file" accept="image/jpeg,image/png,image/webp">
                 ${message('Choose photo')}<span id="photoName" data-message>No photo chosen</span></span>`)}
             ${input('photo_url','Photo URL (optional)',{type:'url',max:2048})}
             ${amount('purchase_price','Purchase Price',{required:true})}${amount('repair_cost','Repair Cost',{initial:0})}
-            ${amount('other_cost','Other Cost',{initial:0})}${amount('sell_price','Expected Sell Price',{min:.01})}
+            ${amount('other_cost','Other Cost',{initial:0})}${amount('sell_price','Best Sell Price',{min:.01})}
             ${select('purchase_method','Purchase Payment',Object.entries(payment).filter(([key]) => key !== 'qist'),'cash')}
             <p class="calculation wide" aria-live="polite"></p>${submit('Save to Stock')}</form>`);
     }
@@ -355,8 +348,9 @@
     function sale() {
         const stock = data.bikes.filter(row => row.status === 'stock');
         const selected = stock.find(bike => String(bike.id) === (sessionStorage.getItem('kb-spa-sell-bike') || ''));
-        return heading('sell') + saleTabs('sell') + (stock.length ? panel('Sale details', `<form id="saleForm" class="form-grid">
+        return heading('sell',exportLinks('sold')) + saleTabs('sell') + (stock.length ? panel('Sale details', `<form id="saleForm" class="form-grid">
             ${select('bike_id','Bike',stock.map(row => [row.id,[row.bike_name,row.model,row.chassis_no].filter(Boolean).join(' · ')]),selected?.id,'Choose a bike',true)}
+            <div id="saleCondition" class="wide"></div>
             ${input('customer_name','Customer name',{required:true,max:100})}${input('customer_phone','Phone',{required:true,type:'tel',max:24})}
             ${salesmanInput()}
             ${input('customer_cnic','CNIC',{max:15})}${amount('sell_price','Bike Price',{required:true,min:.01,initial:selected?.sell_price ?? ''})}
@@ -364,6 +358,7 @@
             ${amount('interest_rate','Flat interest (%)',{initial:0,max:999.99})}
             ${amount('advance','Advance',{initial:0})}${amount('monthly_qist','Monthly Qist',{min:.01})}
             ${input('next_date','Next Date',{type:'date',extra:`min="${data.today}"`})}
+            <p id="saleLoss" class="notice error wide" role="status"></p>
             <p class="calculation wide" aria-live="polite"></p>${submit('Record Sale')}</form>`) +
             panel('Find a stock bike',filterForm('sell',[['stock','In stock']])) :
             panel('No bikes in stock', button('Purchase Bike','purchase',true)));
@@ -395,12 +390,12 @@
             ['Next Date',row => `<bdi>${esc(row.next_date ?? '—')}</bdi>${row.next_date && row.next_date < data.today
                 ? `<span class="balance-due qist-overdue">${message('Overdue')}</span>` : ''}`],
             ['Actions',row => `<div class="actions qist-actions">
-                ${cents(row.remaining) > 0 ? `<button type="button" class="primary" data-collect="${esc(row.id)}">Collect Payment</button>` : ''}
+                ${cents(row.remaining) > 0 && can('qist_collect') ? `<button type="button" class="primary" data-collect="${esc(row.id)}">Collect Payment</button>` : ''}
                 <button type="button" data-receipt="${esc(row.sale_id)}">Receipt</button>
                 <button type="button" data-qist-history="${esc(row.id)}">Payment history</button></div>`]
         ]);
         const content = duesOnly && !rows.length ? '<p class="empty">No outstanding dues.</p>' : plans;
-        return heading('qist') + saleTabs(page) + panel(duesOnly ? pageNames[page] : 'Payment plans', content);
+        return heading('qist',exportLinks('qist')) + saleTabs(page) + panel(duesOnly ? pageNames[page] : 'Payment plans', content);
     }
 
     const jobTransitions = {
@@ -448,7 +443,7 @@
     }
 
     async function showWorkshop({ reload = true } = {}) {
-        view.innerHTML = heading('workshop') + `<section class="panel">
+        view.innerHTML = heading('workshop',button('Mechanic Ledger','mechanics')+button('Workshop Ledger','workshop-ledger')+exportLinks('workshop')) + `<section class="panel">
             <nav id="workshopTabs" class="tabs" aria-label="Workshop pages">
                 <button type="button" data-workshop-tab="active">Job Cards</button>
                 <button type="button" data-workshop-tab="new">New Job</button>
@@ -488,13 +483,21 @@
                 button.setAttribute('aria-current', button.dataset.workshopTab === workshopTab ? 'page' : 'false');
             });
             if (workshopTab === 'new') {
+                content.innerHTML = '<p class="empty" role="status">Loading…</p>';
+                const options = await request('/commission/options');
+                if (!content.isConnected || workshopTab !== 'new') return;
+                if (!options.mechanics.length) {
+                    content.innerHTML = '<p class="empty">Add a mechanic before creating a job.</p>'+button('Mechanic Ledger','mechanics');
+                    return;
+                }
                 content.innerHTML = `<form id="workshopForm" class="form-grid">
                     ${input('customer_name','Customer name',{required:true,max:100})}
                     ${input('customer_phone','Phone',{type:'tel',max:24,required:true})}
                     ${input('registration_number','Bike Number',{max:40})}
                     ${input('bike_name','Bike Model',{required:true})}
-                    ${input('mechanic','Staff name',{max:100,required:true})}
-                    ${select('status','Status',jobOptions(['in_progress','completed','delivered']),'in_progress','Choose a status')}
+                    ${operations.partnerOptions(options)}
+                    ${select('status','Status',jobOptions(can('workshop_status')?['in_progress','completed','delivered']:['in_progress']),
+                        'in_progress','Choose a status')}
                     <div class="wide">${label('Work Description','<textarea name="complaints" maxlength="2000" required></textarea>')}</div>
                     ${billFields()}
                     ${label('Mileage (km)','<input name="mileage" type="number" min="0" max="2147483647" step="1">')}
@@ -503,6 +506,7 @@
                     ${amount('estimated_cost','Estimated cost')}${submit('Create Job Card')}</form>`;
                 const form = $('#workshopForm');
                 form.elements.status.required = true;
+                form.elements.mechanic_id.required = true;
                 saveForm(form, async (fields, key) => {
                     const job = await request('/workshop', {method:'POST',body:{...fields,request_key:key}});
                     if (!form.isConnected) return;
@@ -560,9 +564,10 @@
             ['Work Description',job.complaints],['Job date',job.created_on],['Mileage',job.mileage],
             ['Last oil change',job.oil_change_on],['Next oil change',job.next_oil_change_on],['Estimated cost',format(job.estimated_cost)],
             ['Total Bill',format(job.total_bill)],['Paid',format(job.paid_amount)],['Remaining',jobBalance(job),paymentBalance]
-        ]) + `<form id="labourForm" class="form-grid">${billFields(job)}${submit('Save Bill')}</form>` +
-            (options.length ? `<form id="jobStatusForm" class="form-grid">
+        ]) + '<div id="jobPartsView"></div>' + `<form id="labourForm" class="form-grid">${billFields(job)}${submit('Save Bill')}</form>` +
+            (options.length && can('workshop_status') ? `<form id="jobStatusForm" class="form-grid">
                 ${select('status','Next status',jobOptions(options),'','Choose a status')}${submit('Update status')}</form>` : ''));
+        operations.workshopExtras(job,saveWorkshopView).catch(showPageError);
         const billForm = $('#labourForm');
         saveForm(billForm, async fields => {
             const updated = await request('/workshop/' + id + '/bill', {method:'PATCH',body:fields});
@@ -633,7 +638,7 @@
     };
 
     function hasSeparateRecords(page) {
-        return page === 'workshop' || Object.hasOwn(directoryPages, page);
+        return ['workshop','mechanics','workshop-ledger','users','rules','capital'].includes(page) || Object.hasOwn(directoryPages, page);
     }
 
     async function showDirectory(page) {
@@ -722,7 +727,7 @@
 
     function showSettings() {
         const settings = data.settings || {};
-        view.innerHTML = heading('settings') + panel('Business profile', `<form id="settingsForm" class="form-grid">
+        view.innerHTML = heading('settings',operations.settingsLinks()) + panel('Business profile', `<form id="settingsForm" class="form-grid">
             ${input('business_name','Business name',{value:settings.business_name || 'Khan Brothers',max:100,required:true})}
             ${input('phone','Phone',{value:settings.phone,type:'tel',max:24})}
             ${input('address','Address',{value:settings.address,max:250})}
@@ -750,17 +755,19 @@
         const navigation = $('#navigation');
         navigation.innerHTML = Object.entries(nav).map(([key,[title,icon]]) => {
             if (key === 'purchase') return '';
-            if (key === 'stock') return `<details class="inventory-menu" ${inventoryOpen ? 'open' : ''}>
+            if (key === 'stock') return (!allowedPage('stock')&&!allowedPage('purchase')) ? '' : `<details class="inventory-menu" ${inventoryOpen ? 'open' : ''}>
                 <summary><span aria-hidden="true">▦</span>Inventory</summary>
                 <div class="inventory-submenu">
-                    <a href="#stock" ${page === 'stock' ? 'aria-current="page"' : ''}>Stock</a>
-                    <a href="#purchase" ${page === 'purchase' ? 'aria-current="page"' : ''}>Buy</a>
+                    ${allowedPage('stock')?`<a href="#stock" ${page === 'stock' ? 'aria-current="page"' : ''}>Stock</a>`:''}
+                    ${allowedPage('purchase')?`<a href="#purchase" ${page === 'purchase' ? 'aria-current="page"' : ''}>Buy</a>`:''}
                 </div></details>`;
-            const active = key === page || (key === 'sell' && page === 'sold') || (key === 'qist' && page === 'qist-dues');
+            if (!allowedPage(key)) return '';
+            const active = key === page || (key === 'sell' && page === 'sold') || (key === 'qist' && page === 'qist-dues') ||
+                (key === 'mechanics' && page === 'workshop-ledger') || (key === 'settings' && ['capital','users','rules'].includes(page));
             return `<a href="#${key}" ${active ? 'aria-current="page"' : ''}><span aria-hidden="true">${icon}</span>${title}</a>`;
         }).join('');
         const inventory = navigation.querySelector('.inventory-menu');
-        inventory.addEventListener('toggle', () => {
+        inventory?.addEventListener('toggle', () => {
             if (inventory.isConnected) inventoryOpen = inventory.open;
         });
     }
@@ -776,7 +783,11 @@
             renderNavigation(page);
         }
         viewHasDraft = false;
-        if (page === 'dashboard') { view.innerHTML = dashboard(); drawDashboardChart(); }
+        if (!allowedPage(page)) {
+            view.innerHTML = heading(page) + '<p class="notice error" role="status">Aapko iski permission nahi hai</p>';
+            return;
+        }
+        if (page === 'dashboard') { view.innerHTML = dashboard(); operations.bindDashboardCharts(); }
         else if (page === 'daily-report') view.innerHTML = dailyReportPage();
         else if (page === 'purchase') { view.innerHTML = purchase(); bindPurchase(); }
         else if (page === 'sell') {
@@ -793,6 +804,10 @@
         else if (page === 'qist' || page === 'qist-dues') view.innerHTML = qistPage(page);
         else if (page === 'profit') view.innerHTML = profitPage();
         else if (page === 'workshop') await showWorkshop();
+        else if (page === 'mechanics' || page === 'workshop-ledger') await operations.openLedger(page);
+        else if (page === 'users') await operations.openUsers();
+        else if (page === 'rules') await operations.openRules();
+        else if (page === 'capital') await operations.openCapital();
         else if (Object.hasOwn(directoryPages, page)) await showDirectory(page);
         else if (page === 'settings') showSettings();
         else renderRecords(page);
@@ -804,10 +819,11 @@
         if (page === 'stock') {
             const stock = data.bikes.filter(row => row.status === 'stock');
             view.innerHTML = heading('stock',button('Purchase Bike','purchase',true)) +
-                metrics([['Total Stock Bikes',String(stock.length)],['Total Capital',format(sum(stock,'total_cost'))],['Expected Profit',format(sum(stock,'expected_profit'))]]) +
+                metrics([['Total Stock Bikes',String(stock.length)],...(can('capital')?[['Total Capital',format(sum(stock,'total_cost'))]]:[]),
+                    ...(can('profit')?[['Expected Profit',format(sum(stock,'expected_profit'))]]:[])]) +
                 panel('Inventory',filterForm(page,[['stock','In stock'],['sold','Sold']]),exportLinks('stock'));
             filterRecords(page, filters => table(data.bikes.filter(row => (filters.status || 'stock') === row.status &&
-                matches({ ...row, filter_status: row.status }, filters)),columns.stock));
+                matches({ ...row, filter_status: row.status }, filters)),columns.stock.filter(([title])=>title!=='Expected profit'||can('profit'))));
         } else if (page === 'customers') {
             const customerColumns = [['Name','name'],['Phone','phone'],['CNIC','cnic'],['Qist balance','qist_balance','money'],
                 ['Purchases',row => `<button type="button" data-customer="${esc(row.id)}">View purchases</button>`]];
@@ -927,6 +943,7 @@
     function profitEntry(entry, back) {
         const labour = entry.source === 'labour';
         const parts = entry.source === 'parts';
+        const editable = !labour && Number(entry.id)>0 && (parts ? can('parts') : can('sell'));
         const knownDetails = labour ? []
             : parts ? [['SKU',entry.sku],['Quantity',entry.quantity],['Unit cost',format(entry.unit_cost)],['Unit sale price',format(entry.unit_price)]]
                 : [['Chassis',entry.chassis_no],['Buy Price',format(entry.purchase_price)],['Repair Cost',format(entry.repair_cost)],
@@ -936,11 +953,11 @@
             ...(!parts ? [['Customer',entry.customer]] : []),...knownDetails,
             [labour ? 'Labour charge' : parts ? 'Total Amount' : 'Sell Price',format(entry.revenue)],
             [labour ? 'Labour cost' : 'Total cost',format(entry.cost)],['Profit',entry.profit,signedProfit]
-        ]) + (!labour ? `<form id="profitSalesmanForm" class="form-grid">${salesmanInput(entry.person || '')}${submit('Save salesman')}</form>` : '') +
+        ]) + (editable ? `<form id="profitSalesmanForm" class="form-grid">${salesmanInput(entry.person || '')}${submit('Save salesman')}</form>` : '') +
             (back ? '<button type="button" id="profitBack">Back to breakdown</button>' : ''),true);
         if (back) $('#profitBack').addEventListener('click',back);
         receiptDialog.scrollTop = 0;
-        if (labour) return;
+        if (!editable) return;
         const form = $('#profitSalesmanForm');
         saveForm(form, async fields => {
             const endpoint = (parts ? '/spare-parts/sales/' : '/sales/') + entry.id + '/salesman';
@@ -976,6 +993,7 @@
 
     function bindPurchase() {
         const form = $('#purchaseForm');
+        operations.bindConditions(form);
         form.elements.photo.addEventListener('change', () => {
             const file = form.elements.photo.files[0];
             const name = $('#photoName');
@@ -1016,7 +1034,11 @@
         const selectBike = form.elements.bike_id;
         selectBike.required = true;
         form.elements.payment_method.required = true;
+        const selected = () => data.bikes.find(row => String(row.id) === selectBike.value);
         const update = () => {
+            const price = form.elements.sell_price.value;
+            form.querySelector('#saleLoss').textContent = price && selected() && cents(price)<cents(selected().total_cost)
+                ? 'Is price me nuksan ho raha hai!' : '';
             const qist = form.elements.payment_method.value === 'qist';
             for (const key of ['interest_rate','advance','monthly_qist','next_date']) {
                 const control = form.elements[key];
@@ -1038,12 +1060,15 @@
                 (count ? ' · ' + count + ' ' + message('qists') + ' · ' + message('Last Qist') + ' ' +
                     esc(format((balance - (count - 1) * monthly) / 100)) : '');
         };
+        const condition = () => operations.showSaleCondition($('#saleCondition'),selected(),condition);
         selectBike.addEventListener('change', () => {
-            form.elements.sell_price.value = data.bikes.find(row => String(row.id) === selectBike.value)?.sell_price ?? '';
+            form.elements.sell_price.value = selected()?.sell_price ?? '';
+            condition();
             update();
         });
         form.addEventListener('input', update);
         form.addEventListener('change', update);
+        condition();
         update();
         saveForm(form, async (fields, key) => {
             const result = await request('/sales', { method:'POST', body:{ ...fields, request_key:key } });
@@ -1156,9 +1181,10 @@
         const bike = data.bikes.find(row => String(row.id) === id);
         if (!bike) return;
         showDialog(bike.bike_name, details([['Model',bike.model],['Chassis',bike.chassis_no],['Plate',bike.plate_no],
-            ['Engine',bike.condition_engine],['Tyres',bike.condition_tyre],['Body',bike.condition_body],['Purchased',bike.purchased_on],
-            ['Total cost',format(bike.total_cost)],['Expected sell price',format(bike.sell_price)]]) +
-            (bike.status === 'stock' ? `<button type="button" class="primary" data-sell-bike="${esc(bike.id)}">Sell Bike</button>` : ''),true);
+            ['Purchased',bike.purchased_on]]) + operations.bikeExpenseControls(bike) +
+            (bike.status === 'stock' && can('sell') ? `<button type="button" class="primary" data-sell-bike="${esc(bike.id)}">Sell Bike</button>` : ''),true);
+        operations.updateBikeTotals(bike);
+        operations.bikeExpenses(bike).catch(showPageError);
     }
 
     function customerDetails(id) {
@@ -1171,11 +1197,7 @@
     document.addEventListener('click', event => {
         const action = event.target.closest('button');
         if (!action) return;
-        if (action.hasAttribute('data-chart-days')) {
-            chartDays = Number(action.dataset.chartDays);
-            drawDashboardChart();
-        }
-        else if (action.id === 'dayClose') confirmDayClose();
+        if (action.id === 'dayClose') confirmDayClose();
         else if (action.hasAttribute('data-job')) workshopDetails(action.dataset.job);
         else if (action.hasAttribute('data-job-payment')) collectWorkshopPayment(action.dataset.jobPayment);
         else if (action.hasAttribute('data-profit-source')) profitBreakdown(action.dataset.profitSource);
@@ -1372,6 +1394,27 @@
         renderPage().catch(showPageError);
         refresh({ pageOpen:true });
     });
+    const operations = window.kbOperations({$,view,esc,t,request,label,input,amount,select,table,panel,heading,button,submit,
+        saveForm,showDialog,details,notice,format,cents,metrics,message,signedProfit,exportLinks,can,allowedPage,currentPage,renderPage,
+        showPageError,getData:()=>data,closeDialog:()=>{ if (receiptDialog.open) receiptDialog.close(); }});
+    let checkingAccess = false;
+    async function checkPermissions() {
+        if (!data?.user || data.user.admin || document.hidden || checkingAccess) return;
+        checkingAccess = true;
+        try {
+            const user = await request('/session');
+            if (data?.user && JSON.stringify(data.user) !== JSON.stringify(user)) {
+                if (receiptDialog.open) receiptDialog.close();
+                lastPage = '';
+                await refresh();
+            }
+        } catch (error) {
+            if (error.status === 401) signInView();
+        } finally { checkingAccess = false; }
+    }
+    setInterval(checkPermissions,5000);
+    addEventListener('focus',checkPermissions);
+    addEventListener('storage',event=>{ if (event.key==='kb-permissions-updated') checkPermissions(); });
     refresh().then(async () => {
         if ($('#signIn').hidden) return;
         const setup = await request('/health').catch(() => null);

@@ -7,12 +7,18 @@
         { field:'profit', title:'Profit', color:'#5c9ff9', dash:[2,4] },
         { field:'qist_collected', title:'Qist Collected', color:'#f5a34d', dash:[10,4,2,4] }
     ];
-    let active;
-    const observer = new ResizeObserver(redraw);
+    const active = new Map();
+    const observer = new ResizeObserver(entries => {
+        for (const entry of entries) render(entry.target);
+        for (const canvas of active.keys()) if (!canvas.isConnected) {
+            active.delete(canvas);
+            observer.unobserve(canvas);
+        }
+    });
 
-    function redraw() {
-        if (!active?.canvas.isConnected) { observer.disconnect(); active = undefined; return; }
-        const { canvas, rows } = active;
+    function render(canvas) {
+        if (!canvas.isConnected) return;
+        const { rows, series:lines, mode, monthly } = active.get(canvas);
         const { width, height } = canvas.getBoundingClientRect();
         if (!width || !height || !rows.length) return;
 
@@ -24,7 +30,7 @@
         ctx.scale(scale,scale);
         const dark = document.documentElement.dataset.theme !== 'light';
         const bounds = { top:18, right:width - 16, bottom:height - 31, left:width < 400 ? 54 : 62 };
-        const amounts = rows.flatMap(row => series.map(item => Number(row[item.field])));
+        const amounts = rows.flatMap(row => lines.map(item => Number(row[item.field] ?? 0)));
         const minimum = Math.min(0,...amounts);
         const maximum = Math.max(0,...amounts);
         const rawStep = (maximum - minimum) / 4 || 1;
@@ -32,10 +38,13 @@
         const step = [1,2,2.5,5,10].find(value => value >= rawStep / unit) * unit;
         const low = Math.floor(minimum / step);
         const high = Math.max(low + 1, Math.ceil(maximum / step));
-        const x = index => bounds.left + index * (bounds.right - bounds.left) / Math.max(1,rows.length - 1);
+        const slot = (bounds.right - bounds.left) / rows.length;
+        const x = index => mode === 'bars' || rows.length === 1 ? bounds.left + (index + .5)*slot :
+            bounds.left + index * (bounds.right - bounds.left) / (rows.length - 1);
         const y = amount => bounds.bottom - (amount / step - low) * (bounds.bottom - bounds.top) / (high - low);
         const amountLabel = new Intl.NumberFormat(document.documentElement.lang, { notation:'compact',maximumFractionDigits:1 });
-        const dateLabel = new Intl.DateTimeFormat(document.documentElement.lang,{day:'numeric',month:'short',timeZone:'UTC'});
+        const dateLabel = new Intl.DateTimeFormat(document.documentElement.lang,{...(monthly ? {year:'2-digit'} : {day:'numeric'}),
+            month:'short',timeZone:'UTC'});
 
         ctx.font = '11px system-ui';
         ctx.fillStyle = dark ? '#c7bcab' : '#435b68';
@@ -62,31 +71,43 @@
         ctx.lineWidth = 2.3;
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
-        for (const item of series) {
+        if (mode === 'bars') {
+            const width = Math.max(1,Math.min(42,slot*.8/lines.length));
+            lines.forEach((item,lineIndex)=>{
+                ctx.fillStyle = item.color;
+                rows.forEach((row,index)=>{
+                    const edge = y(Number(row[item.field] ?? 0));
+                    const start = x(index)+(lineIndex-lines.length/2)*width;
+                    ctx.fillRect(start,Math.min(edge,y(0)),Math.max(1,width-1),Math.abs(edge-y(0)));
+                });
+            });
+            return;
+        }
+        for (const item of lines) {
             ctx.strokeStyle = item.color;
-            ctx.setLineDash(item.dash);
+            ctx.setLineDash(item.dash || []);
             ctx.beginPath();
             rows.forEach((row,index) => {
-                const position = [x(index),y(Number(row[item.field]))];
+                const position = [x(index),y(Number(row[item.field] ?? 0))];
                 if (index === 0) ctx.moveTo(...position);
                 else ctx.lineTo(...position);
             });
             ctx.stroke();
             ctx.fillStyle = item.color;
             ctx.beginPath();
-            ctx.arc(x(rows.length - 1),y(Number(rows.at(-1)[item.field])),2.8,0,Math.PI * 2);
+            ctx.arc(x(rows.length - 1),y(Number(rows.at(-1)[item.field] ?? 0)),2.8,0,Math.PI * 2);
             ctx.fill();
         }
     }
 
-    new MutationObserver(redraw).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','lang']});
+    new MutationObserver(()=>active.forEach((_settings,canvas)=>render(canvas)))
+        .observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','lang']});
     window.kbDailyChart = {
         series,
-        draw(canvas,rows) {
-            observer.disconnect();
-            active = {canvas,rows};
+        draw(canvas,rows,settings={}) {
+            active.set(canvas,{rows,series:settings.series || series,mode:settings.mode || 'lines',monthly:settings.monthly});
             observer.observe(canvas);
-            redraw();
+            render(canvas);
         }
     };
 })();

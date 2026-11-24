@@ -40,6 +40,6 @@ function requestKey(value) {
     if (!/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(value)) throw problem(400, 'Invalid request key.');
     return value;
 }
-const run = handler => (req, res, next) => Promise.resolve().then(() => handler(req, res)).catch(next);
+const run = handler => (req, res, next) => Promise.resolve().then(() => handler(req, res, next)).catch(next);
 
 module.exports = { methods, expenseTypes, photoName, today, text, money, date, id, requestKey, run };

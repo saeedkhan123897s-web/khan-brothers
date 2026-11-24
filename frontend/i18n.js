@@ -5,6 +5,110 @@
 Khan Brothers|خان برادرز|Khan Brothers
 Khan Brothers | Motorcycle Business¦خان برادرز، موٹر سائیکل کاروبار¦Khan Brothers, Motorcycle Karobar
 Dashboard|ڈیش بورڈ|Dashboard
+Username|صارف نام|Username
+Users|صارفین|Users
+Naya User Banao|نیا صارف بنائیں|Naya User Banao
+Save User|صارف محفوظ کریں|User Save Karein
+Delete User|صارف حذف کریں|User Delete Karein
+Rules Router|صارف کی اجازتیں|Rules Router
+Save Permissions|اجازتیں محفوظ کریں|Permissions Save Karein
+Sab ON Karo|سب چالو کریں|Sab ON Karo
+Sab OFF Karo|سب بند کریں|Sab OFF Karo
+Aapko iski permission nahi hai|آپ کو اس کی اجازت نہیں ہے|Aapko Iski Permission Nahi Hai
+Admin permissions are always on.|ایڈمن کی تمام اجازتیں چالو ہیں۔|Admin ki Sab Permissions ON Hain.
+Invalid username or password.|صارف نام یا پاس ورڈ درست نہیں۔|Username ya Password Durust Nahi.
+New password (optional)|نیا پاس ورڈ (اختیاری)|Naya Password (Ikhtiyari)
+Dashboard Dekh Sakta Hai|ڈیش بورڈ دیکھ سکتا ہے|Dashboard Dekh Sakta Hai
+Stock Dekh Sakta Hai|اسٹاک دیکھ سکتا ہے|Stock Dekh Sakta Hai
+Buy Bike Kar Sakta Hai|موٹر سائیکل خرید سکتا ہے|Buy Bike Kar Sakta Hai
+Sell Bike Kar Sakta Hai|موٹر سائیکل بیچ سکتا ہے|Sell Bike Kar Sakta Hai
+Qist / Udhar Dekh Sakta Hai|قسط اور ادھار دیکھ سکتا ہے|Qist / Udhar Dekh Sakta Hai
+Qist Jama Kar Sakta Hai|قسط وصول کر سکتا ہے|Qist Jama Kar Sakta Hai
+Workshop / Job Card Dekh Sakta Hai|ورکشاپ اور جاب کارڈ دیکھ سکتا ہے|Workshop / Job Card Dekh Sakta Hai
+Workshop Job Status Change Kar Sakta Hai|ورکشاپ کام کی حالت بدل سکتا ہے|Workshop Job Status Change Kar Sakta Hai
+Spare Parts Dekh Sakta Hai|اسپیئر پارٹس دیکھ سکتا ہے|Spare Parts Dekh Sakta Hai
+Customers Dekh Sakta Hai|گاہکوں کو دیکھ سکتا ہے|Customers Dekh Sakta Hai
+Profit Dekh Sakta Hai|منافع دیکھ سکتا ہے|Profit Dekh Sakta Hai
+Daily Report Dekh Sakta Hai|روزانہ رپورٹ دیکھ سکتا ہے|Daily Report Dekh Sakta Hai
+Download Report Kar Sakta Hai|رپورٹ ڈاؤن لوڈ کر سکتا ہے|Download Report Kar Sakta Hai
+Commission Dekh Sakta Hai|کمیشن دیکھ سکتا ہے|Commission Dekh Sakta Hai
+Capital Dekh Sakta Hai|سرمایہ دیکھ سکتا ہے|Capital Dekh Sakta Hai
+Delete Kar Sakta Hai|حذف کر سکتا ہے|Delete Kar Sakta Hai
+Settings Khol Sakta Hai|ترتیبات کھول سکتا ہے|Settings Khol Sakta Hai
+Naya User Bana Sakta Hai|نیا صارف بنا سکتا ہے|Naya User Bana Sakta Hai
+Body / Kader Condition|باڈی / کادر کی حالت|Body / Kader ki Haalat
+Overall Condition|مجموعی حالت|Kul Haalat
+Kharab|خراب|Kharab
+Theek Hai|ٹھیک ہے|Theek Hai
+Zabardast|زبردست|Zabardast
+Update Condition|حالت بدلیں|Haalat Update Karein
+Save Condition|حالت محفوظ کریں|Haalat Save Karein
+Best Sell Price|بہترین فروخت قیمت|Behtareen Farokht ki Qeemat
+Save Best Sell Price|فروخت قیمت محفوظ کریں|Farokht ki Qeemat Save Karein
+Bike Expenses|موٹر سائیکل کے اخراجات|Bike ke Kharchay
+Expense name|خرچ کا نام|Kharchay ka Naam
+Is price me nuksan ho raha hai!|اس قیمت پر نقصان ہو رہا ہے!|Is Price Mein Nuqsan Ho Raha Hai!
+Mechanic Ledger|مکینک کا حساب|Mechanic ka Hisaab
+Workshop Ledger|ورکشاپ کا حساب|Workshop ka Hisaab
+Select Mechanic|مکینک منتخب کریں|Mechanic Chunein
+Select Workshop|ورکشاپ منتخب کریں|Workshop Chunein
+Select Mechanic / Workshop|مکینک / ورکشاپ منتخب کریں|Mechanic / Workshop Chunein
+Choose a mechanic|مکینک چنیں|Mechanic Chunein
+No referral workshop|کوئی ریفرل ورکشاپ نہیں|Koi Referral Workshop Nahi
+Referral Workshop|ریفرل ورکشاپ|Referral Workshop
+Job Parts|کام میں استعمال شدہ پرزے|Kaam ke Parzay
+Choose a spare part|اسپیئر پارٹ چنیں|Parza Chunein
+Add a mechanic before creating a job.|جاب کارڈ بنانے سے پہلے مکینک شامل کریں۔|Job Card se Pehle Mechanic Shamil Karein.
+Parts Total|پرزوں کی کل رقم|Parzon ki Kul Raqam
+Mechanic Commission?|مکینک کا کمیشن؟|Mechanic ka Commission?
+Commission rate|کمیشن کی شرح|Commission ki Sharh
+Custom commission %|اختیاری کمیشن %|Custom Commission %
+Default Commission %|طے شدہ کمیشن %|Default Commission %
+Workshop Bonus %|ورکشاپ بونس %|Workshop Bonus %
+Save to Job Card|جاب کارڈ میں محفوظ کریں|Job Card Mein Save Karein
+Commission Earned|کمایا ہوا کمیشن|Kamaya Hua Commission
+Bonus Earned|کمایا ہوا بونس|Kamaya Hua Bonus
+Total Parts Sold|پرزوں کی کل فروخت|Parzon ki Kul Farokht
+Parts Quantity|پرزوں کی تعداد|Parzon ki Tadaad
+Total Jobs|کل کام|Kul Kaam
+Total Referrals|کل ریفرلز|Kul Referrals
+Commission De Diya|کمیشن دے دیا|Commission De Diya
+Bonus De Diya|بونس دے دیا|Bonus De Diya
+Add Mechanic|مکینک شامل کریں|Mechanic Shamil Karein
+Mechanic Name|مکینک کا نام|Mechanic ka Naam
+Add Referral Workshop|ریفرل ورکشاپ شامل کریں|Referral Workshop Shamil Karein
+Workshop Name|ورکشاپ کا نام|Workshop ka Naam
+Owner|مالک|Malik
+Download Report|رپورٹ ڈاؤن لوڈ کریں|Report Download Karein
+Capital / Investment|سرمایہ / سرمایہ کاری|Sarmaya / Sarmaya Kari
+Opening Capital|ابتدائی سرمایہ|Shuru ka Sarmaya
+Total Investment|کل سرمایہ کاری|Kul Sarmaya Kari
+Total Capital + Profit|کل سرمایہ اور منافع|Kul Sarmaya aur Munafa
+Naya Investment Add Karo|نئی سرمایہ کاری شامل کریں|Naya Investment Add Karo
+Save Investment|سرمایہ کاری محفوظ کریں|Investment Save Karein
+Investments|سرمایہ کاری|Sarmaya Kari
+Investment|سرمایہ کاری|Sarmaya Kari
+Method|طریقہ|Tareeqa
+Running Total|مجموعی کل رقم|Kul Raqam
+Monthly Investment vs Profit|ماہانہ سرمایہ اور منافع کا موازنہ|Mahana Investment aur Munafa
+Year Summary|سال کا خلاصہ|Saal ka Khulasa
+Year|سال|Saal
+Month|مہینہ|Mahina
+Profit %|منافع %|Munafa %
+Total Paisa|کل رقم|Kul Raqam
+Dashboard Graphs|ڈیش بورڈ گراف|Dashboard Graphs
+7 Days|7 دن|7 Din
+30 Days|30 دن|30 Din
+All Time|اب تک|Ab Tak
+Sale vs Expense vs Profit|فروخت، خرچ اور منافع|Farokht, Kharcha aur Munafa
+Spare Parts Sale vs Workshop Income|پرزوں کی فروخت اور ورکشاپ آمدنی|Parzon ki Farokht aur Workshop Aamdani
+Mechanic Commission vs Workshop Bonus|مکینک کمیشن اور ورکشاپ بونس|Mechanic Commission aur Workshop Bonus
+Bike Buy Cost vs Sell Price|موٹر سائیکل کی خرید لاگت اور فروخت قیمت|Bike ki Laagat aur Farokht ki Qeemat
+This week vs Previous week|اس ہفتے اور پچھلے ہفتے کا موازنہ|Is Hafte aur Pichle Hafte ka Muqabla
+Spare Parts Sale|پرزوں کی فروخت|Parzon ki Farokht
+Workshop Income|ورکشاپ کی آمدنی|Workshop ki Aamdani
+Mechanic Commission|مکینک کا کمیشن|Mechanic ka Commission
+Workshop Bonus|ورکشاپ بونس|Workshop Bonus
 Daily Report|روزانہ رپورٹ|Rozana Report
 Daily comparison|روزانہ موازنہ|Rozana Muqabla
 Daily comparison chart|روزانہ موازنے کا چارٹ|Rozana Muqable ka Chart

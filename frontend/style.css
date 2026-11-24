@@ -132,6 +132,50 @@ a.metric:hover { border-color: var(--gold); }
 .repurchase-check input { inline-size: 18px; block-size: 18px; min-height: 0; margin: 0; cursor: pointer; accent-color: var(--gold); }
 .daily-report-date, .daily-report-note { color: var(--muted); font-size: .85rem; }
 .daily-report-date { margin-block-end: 14px; }
+.condition-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(min(100%,170px),1fr)); gap: 12px; }
+input[data-condition] { appearance: none; min-height: 10px; height: 10px; padding: 0; margin-block: 8px; border: 0; border-radius: 10px;
+    background: linear-gradient(90deg,#e75052 0%,#ebc250 50%,#3bbd76 100%); cursor: pointer; }
+[dir="rtl"] input[data-condition] { background: linear-gradient(270deg,#e75052 0%,#ebc250 50%,#3bbd76 100%); }
+input[data-condition]::-webkit-slider-thumb { appearance: none; width: 19px; height: 19px; border: 2px solid #faf4e9; border-radius: 50%; background: #171411; }
+input[data-condition]::-moz-range-thumb { width: 16px; height: 16px; border: 2px solid #faf4e9; border-radius: 50%; background: #171411; }
+input[data-condition]:disabled { cursor: default; }
+#saleCondition { display: grid; gap: 10px; justify-items: start; }
+.condition-low { color: #ff9693; }
+.condition-mid { color: #efc16a; }
+.condition-high { color: #85e0a1; }
+[data-theme="light"] .condition-low { color: #a62424; }
+[data-theme="light"] .condition-mid { color: #875e00; }
+[data-theme="light"] .condition-high { color: #17643a; }
+.overall-condition { display: block; margin-block-start: 5px; white-space: nowrap; }
+.overall-condition meter { display: block; inline-size: 85px; block-size: 8px; accent-color: currentColor; }
+.overall-condition meter::-webkit-meter-optimum-value { background: currentColor; }
+.overall-condition meter::-moz-meter-bar { background: currentColor; }
+.download-menu { display: grid; gap: 7px; }
+.download-menu summary { cursor: pointer; color: var(--gold); padding-block: 5px; }
+.rules-grid { display: grid; grid-template-columns: minmax(160px,1fr) minmax(265px,3fr); gap: 14px; }
+.rules-grid .panel { margin-block-start: 0; }
+.rules-users { display: grid; align-content: start; gap: 8px; }
+.rules-users button { text-align: start; overflow-wrap: anywhere; }
+.rules-users [aria-pressed="true"], .chart-filters [aria-pressed="true"] { color: var(--gold); border-color: var(--gold); }
+.permission-row { display: flex; justify-content: space-between; align-items: center; min-height: 40px; gap: 12px; padding-block: 5px; border-block-end: 1px solid var(--line); }
+.permission-row input { appearance: none; position: relative; inline-size: 34px; block-size: 19px; min-height: 0; padding: 0;
+    border: 0; border-radius: 12px; background: #67737d; flex: none; cursor: pointer; }
+.permission-row input:checked { background: #278a56; }
+.permission-row input::before { content: ""; position: absolute; inset-block-start: 3px; inset-inline-start: 3px; width: 13px; height: 13px; background: #fff; border-radius: 50%; }
+.permission-row input:checked::before { inset-inline-start: 18px; }
+.rules-form .actions { margin-block-start: 10px; }
+.graph-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(min(100%,370px),1fr)); gap: 12px; margin-block-start: 14px; }
+.graph-grid .panel { margin: 0; padding: 14px; min-width: 0; }
+.chart-commission, .chart-investment, .chart-workshop_income { color: #5c9ff9; }
+.chart-bonus, .chart-bike_cost { color: #f5a34d; }
+.chart-part_sales, .chart-bike_price { color: #28b779; }
+.capitalChart-legend .chart-profit { color: #28b779; border-block-start-style: solid; }
+#capitalChart + .chart-values { margin-block-end: 12px; }
+.report-chart { inline-size: 100%; block-size: 225px; display: block; margin-block: 7px; }
+.weekly-title { margin-block-start: 10px; font-size: .79rem; color: var(--muted); }
+.week-change { display: flex; flex-wrap: wrap; gap: 5px 12px; list-style: none; margin: 0; padding: 0; font-size: .78rem; }
+.capital-dashboard-card { display: block; width: min(100%,330px); margin-block-start: 16px; }
+@media (max-width: 650px) { .rules-grid { grid-template-columns: 1fr; } }
 .profit-sources { grid-template-columns: repeat(auto-fit,minmax(min(100%,185px),1fr)); }
 .profit-totals { grid-template-columns: repeat(auto-fit,minmax(min(100%,220px),1fr)); }
 .profit-totals strong [data-message] { display: inline; margin: 0; color: inherit; font-size: inherit; }

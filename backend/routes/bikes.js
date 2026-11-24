@@ -4,12 +4,38 @@ const express = require('express');
 const multer = require('multer');
 const { randomUUID } = require('node:crypto');
 const { problem } = require('../supabase');
-const { methods, photoName, today, text, money, date, requestKey, run } = require('./shared');
+const { methods, photoName, today, text, money, date, id, requestKey, run } = require('./shared');
+
+function conditions(input, required = false) {
+    const fields = {};
+    for (const key of ['engine_pct','body_pct','overall_pct']) {
+        const raw = input[key];
+        if ((raw == null || raw === '') && !required) continue;
+        if (!/^\d{1,3}$/.test(String(raw)) || Number(raw) > 100) throw problem(400,'Condition must be between 0 and 100.');
+        fields[key] = Number(raw);
+    }
+    return fields;
+}
 
 module.exports = function bikes(db) {
     const router = express.Router();
     const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 2 * 1024 * 1024, files: 1, parts: 2 } });
     router.get('/', run(async (_req, res) => res.json(await db.list('bikes'))));
+    router.get('/:id/expenses',run(async (req,res) => {
+        res.json((await db.list('kb_bike_expenses',{bike_id:'eq.'+id(req.params.id)})).reverse());
+    }));
+    router.post('/:id/expenses',run(async (req,res) => {
+        const expense = {name:text(req.body.name,'Expense name',100,true),
+            amount:money(req.body.amount,'Expense amount',{min:.01}),date:date(req.body.date,today()),request_key:requestKey(req.body.request_key)};
+        res.status(201).json(await db.rpc('kb_add_bike_expense',{p_bike_id:id(req.params.id),p_expense:expense}));
+    }));
+    router.patch('/:id/condition',run(async (req,res) => {
+        res.json(await db.update('bikes',id(req.params.id),conditions(req.body,true),{status:'eq.stock'}));
+    }));
+    router.patch('/:id/asking-price',run(async (req,res) => {
+        const price = money(req.body.sell_price,'Best Sell Price',{min:.01});
+        res.json(await db.update('bikes',id(req.params.id),{sell_price:price},{status:'eq.stock'}));
+    }));
     router.post('/photos', upload.single('photo'), run(async (req, res) => {
         const data = req.file?.buffer;
         const isPng = data?.subarray(0, 8).toString('hex') === '89504e470d0a1a0a';
@@ -45,6 +71,7 @@ module.exports = function bikes(db) {
             condition_engine: text(data.condition_engine, 'Engine condition', 120),
             condition_tyre: text(data.condition_tyre, 'Tyre condition', 120),
             condition_body: text(data.condition_body, 'Body condition', 120),
+            ...conditions(data),
             purchase_price: money(data.purchase_price, 'Purchase price'), repair_cost: money(data.repair_cost || 0, 'Repair cost'),
             other_cost: money(data.other_cost || 0, 'Other cost'), sell_price: price,
             purchase_method: purchaseMethod, purchased_on: date(data.purchased_on, today()), request_key: requestKey(data.request_key)

@@ -1,5 +1,6 @@
 'use strict';
 
+const { pdfReport } = require('./report-pdf');
 const { spreadsheet } = require('./src/utils/spreadsheet');
 const { today } = require('./routes/shared');
 const { problem } = require('./supabase');
@@ -57,23 +58,66 @@ const columns = {
 };
 const profitSourceLabels = { bike:'Bike Sell Profit', parts:'Spare Parts Profit', labour:'Handwork / Labour Profit' };
 
-async function exportReport(db, section, format) {
-    if (!['stock','sold','customers','profit'].includes(section) || !['csv','excel'].includes(format)) {
-        throw problem(400, 'Choose a valid export.');
-    }
+const reportNames = { stock:'Stock Report', sold:'Sale Report', customers:'Customer Report', profit:'Profit Report',
+    daily:'Daily Report', qist:'Qist Report', commission:'Mechanic Commission Report', workshop:'Workshop Report' };
+const totalsColumns = {
+    stock:['purchase_price','repair_cost','other_cost','total_cost','expected_profit'],
+    sold:['sell_price','cost_at_sale','profit'],
+    customers:['qist_balance'], qist:['total','paid','remaining'],
+    daily:['sale_income','qist_collected','workshop_income','expense','total_income'],
+    commission:['jobs','quantity','sales','earned','paid','remaining'],
+    workshop:['parts_cost','labour_charge','total_bill','paid_amount','remaining'],
+    profit:['purchase_price','sell_price','profit']
+};
+
+function withTotals(sheet, fields) {
+    return {...sheet,total:{ [sheet.columns[0][0]]:'Total',
+        ...Object.fromEntries(fields.map(key=>[key,sum(sheet.rows,key)])) }};
+}
+
+async function exportReport(db, section, format, zone='Asia/Muscat') {
+    if (!Object.hasOwn(reportNames,section) || !['csv','excel','pdf'].includes(format)) throw problem(400,'Choose a valid export.');
     const data = await state(db);
-    const stock = data.bikes.filter(row => row.status === 'stock');
-    const sheets = [{ name: section === 'profit' ? 'Sold Bikes' : section,
-        columns: columns[section],
-        rows: section === 'stock' ? stock : section === 'customers' ? data.customers : data.sold }];
-    if (section === 'profit') {
-        if (!data.profit) throw problem(503, 'Profit data is unavailable.');
-        const leading = data.profit.leading.map(source => profitSourceLabels[source]).join(' / ');
-        sheets.unshift({ name: 'Profit summary',
-            columns: [...Object.entries(profitSourceLabels), ['net','Total Net Profit'], ['leading','Highest Profit Source']],
-            rows: [{ ...data.profit, leading: leading || 'No profitable source' }] });
+    const day = today(zone);
+    const dateLabel = new Intl.DateTimeFormat('en-GB',{day:'2-digit',month:'short',year:'numeric',timeZone:'UTC'})
+        .format(new Date(day+'T00:00:00Z')).replaceAll(' ','-');
+    let sheets;
+    if (section==='daily') {
+        const {report} = await db.rpc('kb_daily_overview',{p_day:day,p_timezone:zone});
+        sheets=[{ name:'Daily balances', columns:[['label','Item'],['value','PKR']], rows:[
+            {label:'Opening Balance',value:report.opening_balance},{label:'Today Sale',value:report.sale_income},
+            {label:'Qist Collected',value:report.qist_collected},{label:'Workshop Income',value:report.workshop_income},
+            {label:'Total Income',value:report.total_income},{label:'Total Expense',value:report.expense}
+        ],total:{label:'Closing Balance',value:report.closing_balance} }];
+    } else if (section==='qist') {
+        sheets=[withTotals({name:'Qist plans',columns:[['customer_name','Customer Name'],['customer_phone','Phone'],['bike_name','Bike'],
+            ['total','Total Price'],['paid','Paid'],['remaining','Remaining'],['next_date','Next Date']],rows:data.qist},totalsColumns.qist)];
+    } else if (section==='commission') {
+        const ledger=await db.rpc('kb_partner_ledger',{});
+        sheets=['mechanic','workshop'].map(kind=>withTotals({name:kind==='mechanic'?'Mechanics':'Referral Workshops',columns:[
+            ['name','Name'],['jobs',kind==='mechanic'?'Total Jobs':'Total Referrals'],['quantity','Parts'],['sales','Parts Sold'],
+            ['earned',kind==='mechanic'?'Commission Earned':'Bonus Earned'],['paid','Paid'],['remaining','Remaining']
+        ],rows:ledger.filter(row=>row.kind===kind)},totalsColumns.commission));
+    } else if (section==='workshop') {
+        const rows=(await db.list('kb_workshop_jobs')).map(row=>({...row,remaining:row.total_bill == null ? null :
+            (pennies(row.total_bill)-pennies(row.paid_amount))/100}));
+        sheets=[withTotals({name:'Workshop jobs',columns:[['created_on','Date'],['bike_name','Bike'],['customer_name','Customer'],
+            ['mechanic','Mechanic'],['status','Status'],['parts_cost','Parts Cost'],['labour_charge','Labour Charge'],
+            ['total_bill','Total Bill'],['paid_amount','Paid'],['remaining','Remaining']],rows},totalsColumns.workshop)];
+    } else {
+        const rows=section==='stock' ? data.bikes.filter(row=>row.status==='stock') : section==='customers' ? data.customers : data.sold;
+        sheets=[withTotals({name:section==='profit'?'Sold Bikes':reportNames[section],columns:columns[section],rows},totalsColumns[section])];
+        if (section==='profit') {
+            if (!data.profit) throw problem(503,'Profit data is unavailable.');
+            const leading=data.profit.leading.map(source=>profitSourceLabels[source]).join(' / ');
+            sheets.unshift({name:'Profit summary',
+                columns:[...Object.entries(profitSourceLabels),['net','Total Net Profit'],['leading','Highest Profit Source']],
+                rows:[{...data.profit,leading:leading||'No profitable source'}]});
+        }
     }
-    return spreadsheet(sheets, format);
+    const file=format==='pdf' ? await pdfReport(reportNames[section],dateLabel,sheets,data.settings?.business_name||'Khan Brothers')
+        : spreadsheet(sheets.map(sheet=>section==='daily' && sheet.total ? {...sheet,rows:[...sheet.rows,sheet.total]} : sheet),format);
+    return {...file,filename:reportNames[section].replaceAll(' ','_')+'_'+dateLabel+'.'+file.extension};
 }
 
 module.exports = { state, exportReport };

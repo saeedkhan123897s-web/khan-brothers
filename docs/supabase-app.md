@@ -6,7 +6,7 @@ The single-page app and the original MySQL ERP run separately. The old ERP still
 
 1. In the SQL Editor of a Supabase project for this app, run [schema.sql](../database/supabase/schema.sql), then apply the numbered migrations in [database/supabase](../database/supabase) in order. On an existing database, apply only the pending migrations.
 2. Set `SUPABASE_URL` to the Supabase project URL. Set `SUPABASE_KEY` to the secret API key or legacy service-role key. Express uses it to access the database and photo storage.
-3. Set `APP_PASSWORD_HASH` to a bcrypt hash of the staff password. Set `APP_SESSION_SECRET` to an independent random secret of at least 32 characters.
+3. Set `APP_PASSWORD_HASH` to a bcrypt hash of the built-in `admin` password. Set `APP_SESSION_SECRET` to an independent random secret of at least 32 characters.
 
 Generate these two values with Bash from the project root.
 
@@ -27,7 +27,7 @@ npm ci
 PORT=3100 npm run start:spa
 ```
 
-Open [http://localhost:3100](http://localhost:3100) and enter the staff password. Purchase, Stock, Sales, Profit, Expenses, Customers and Qist use the same page with hash navigation.
+Open [http://localhost:3100](http://localhost:3100) and sign in as `admin` with the configured password. Create staff accounts under **Settings → Users** and assign their access under **Rules Router**.
 
 The export buttons download current database records as CSV or Excel. Profit exports contain the three profit sources, their combined total and the four-column sold-bike summary. Use **Sell part** in Spare Parts to record a sale at its actual unit price. Enter the labour charge and cost in the details of a completed or delivered workshop job. Qist totals include the agreed flat interest when entered at sale.
 
@@ -37,6 +37,8 @@ In Workshop, the total bill is the parts charge plus the labour charge. Use **De
 
 The Daily Report adds recorded sale receipts, Qist collections and workshop payments to the latest saved closing balance, then deducts operating expenses. The first opening balance is zero. Closing a day saves the report and blocks new postings to that date. The repurchase list targets 10 units per low-stock part and clears a tick when the part's inventory quantity changes.
 
+Assign independent mechanics and optional referral workshops to jobs. Recording parts deducts stock and saves the commission and referral bonus for those parts. Partner payouts reduce the Daily Report closing balance. Capital is available only to administrators and starts with PKR 120,000.
+
 ## Vercel
 
 Use the repository root as the Vercel project root. The Express entry point is `index.js`. The build command in `vercel.json` copies the single-page frontend and shared KB assets into Vercel's `public/` directory. Set the Supabase and staff sign-in environment variables for the intended deployment before deploying. [Express on Vercel](https://vercel.com/docs/frameworks/backend/express)
@@ -45,7 +47,7 @@ Vercel Hobby is for personal, non-commercial use. Commercial use of the shop app
 
 ## Backend blueprint
 
-The app is for staff recording motorcycle purchases, stock, resales, Qist collections and operating expenses. The frontend uses plain HTML, CSS and JavaScript. Node.js and Express provide an authenticated API. Supabase provides Postgres and private photo storage. The new app uses one configured staff credential, verified with bcrypt. An eight-hour signed session cookie grants API access.
+The app is for staff recording motorcycle purchases, stock, resales, Qist collections and operating expenses. The frontend uses plain HTML, CSS and JavaScript. Node.js and Express provide an authenticated API. Supabase provides Postgres and private photo storage. Passwords are verified with bcrypt. An eight-hour signed session cookie identifies each account, and protected API requests check the account's current permissions.
 
 ### Data model
 

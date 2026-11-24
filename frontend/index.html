@@ -10,6 +10,7 @@
     <script src="/i18n.js" defer></script>
     <script src="/notifications.js" defer></script>
     <script src="/daily-chart.js" defer></script>
+    <script src="/operations.js" defer></script>
     <script src="/kb-loader.js" defer></script>
     <script src="/app.js" defer></script>
 </head>
@@ -22,6 +23,7 @@
                 <button type="button" class="theme-toggle" aria-pressed="false">☀ Light</button>
                 <select class="language" aria-label="Language"><option value="en">EN</option><option value="ur">اردو</option><option value="roman">Roman Urdu</option></select>
             </div>
+            <label>Username<input name="username" value="admin" autocomplete="username" required maxlength="40"></label>
             <label>Password<input name="password" type="password" autocomplete="current-password" required></label>
             <button class="primary" type="submit">Sign in</button>
             <p id="loginStatus" class="notice" role="status"></p>

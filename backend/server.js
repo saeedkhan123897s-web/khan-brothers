@@ -5,14 +5,14 @@ require('dotenv').config();
 const express = require('express');
 const helmet = require('helmet');
 const cookieParser = require('cookie-parser');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
 const { rateLimit } = require('express-rate-limit');
 const { createSupabase, problem } = require('./supabase');
 const { date, id, run, today } = require('./routes/shared');
 const { state, exportReport } = require('./reports');
 const assets = require('./spa-assets');
 const { directory, settingsRouter } = require('./routes/business');
+const { accountAccess, authorize, has, restrictedState } = require('./access');
+const { commission, capital, dashboard } = require('./routes/operations');
 const routes = {
     bikes: require('./routes/bikes'),
     sales: require('./routes/sales'),
@@ -23,7 +23,9 @@ const routes = {
     suppliers: db => directory(db, 'suppliers'),
     'spare-parts': db => directory(db, 'parts'),
     staff: db => directory(db, 'staff'),
-    settings: settingsRouter
+    settings: settingsRouter,
+    users: require('./routes/users'),
+    commission
 };
 
 function createApp(settings = process.env, db = createSupabase(settings), app = express()) {
@@ -32,6 +34,7 @@ function createApp(settings = process.env, db = createSupabase(settings), app = 
     const secure = settings.VERCEL === '1' || settings.NODE_ENV === 'production';
     const cookieOptions = { httpOnly: true, sameSite: 'strict', secure, path: '/' };
     const canSignIn = Boolean(settings.APP_PASSWORD_HASH && settings.APP_SESSION_SECRET?.length >= 32);
+    const accounts = accountAccess(db,settings,canSignIn);
     app.disable('x-powered-by');
     if (settings.VERCEL === '1') app.set('trust proxy', 1);
     app.use(helmet({
@@ -60,29 +63,25 @@ function createApp(settings = process.env, db = createSupabase(settings), app = 
         handler: (_req, res) => res.status(429).json({ error: 'Too many sign-in attempts. Try again later.' }) }),
     run(async (req, res) => {
         if (!canSignIn) throw problem(503, 'Configure the staff password hash and session secret.');
-        if (typeof req.body.password !== 'string' || Buffer.byteLength(req.body.password) > 72 ||
-            !await bcrypt.compare(req.body.password, settings.APP_PASSWORD_HASH)) throw problem(401, 'Invalid staff password.');
-        const token = jwt.sign({ sub: 'kb-staff' }, settings.APP_SESSION_SECRET, { expiresIn: '8h', algorithm: 'HS256' });
-        res.cookie(cookieName, token, { ...cookieOptions, maxAge: 8 * 60 * 60 * 1000 }).json({ signedIn: true });
+        const {token,user} = await accounts.verify(req.body.username,req.body.password);
+        res.cookie(cookieName, token, { ...cookieOptions, maxAge: 8 * 60 * 60 * 1000 }).json({ signedIn:true,user });
     }));
-    app.use('/api', (req, _res, next) => {
-        try {
-            if (!canSignIn || jwt.verify(req.cookies[cookieName], settings.APP_SESSION_SECRET, { algorithms: ['HS256'] }).sub !== 'kb-staff') {
-                throw new Error();
-            }
-        } catch {
-            return next(problem(401, 'Sign in to access Khan Brothers records.'));
-        }
-        next();
-    });
-
     app.post('/api/logout', (_req, res) => res.clearCookie(cookieName, cookieOptions).json({ signedIn: false }));
+    app.use('/api', run(async (req,res,next) => {
+        res.locals.user = await accounts.session(req.cookies[cookieName]);
+        authorize(req,res.locals.user);
+        next();
+    }));
+    app.get('/api/session',(_req,res)=>res.json(res.locals.user));
     app.get('/api/state', run(async (req, res) => {
-        if (req.query.daily !== '1') return res.json(await state(db));
+        const user = res.locals.user;
+        if (req.query.daily !== '1' || !['dashboard','daily'].some(key=>has(user,key))) {
+            return res.json({...restrictedState(await state(db),user),user});
+        }
         const [snapshot, daily] = await Promise.all([
             state(db), db.rpc('kb_daily_overview', { p_day:today(businessTimeZone), p_timezone:businessTimeZone })
         ]);
-        res.json({ ...snapshot, daily });
+        res.json({ ...restrictedState({...snapshot,daily},user),user });
     }));
     app.post('/api/daily-report/close', run(async (req, res) => {
         const day = date(req.body.date, null);
@@ -97,13 +96,20 @@ function createApp(settings = process.env, db = createSupabase(settings), app = 
         res.json({ id:part.id });
     }));
     app.get('/api/notifications', run(async (_req, res) => {
-        res.json(await db.rpc('kb_notification_feed', { p_timezone:businessTimeZone }));
+        const user=res.locals.user;
+        const feed=await db.rpc('kb_notification_feed', { p_timezone:businessTimeZone });
+        const activityGrant={sale:'sell','qist-payment':'qist',ready:'workshop'};
+        res.json({...feed,activity:feed.activity.filter(row=>has(user,row.id.startsWith('part-sale:') ? 'parts' : activityGrant[row.kind])),
+            reminders:has(user,'qist') ? feed.reminders : [], bikeStock:has(user,'stock') ? feed.bikeStock : null,
+            lowParts:has(user,'parts') ? feed.lowParts : [],summary:has(user,'daily') ? feed.summary : null});
     }));
+    app.get('/api/dashboard/charts',dashboard(db,businessTimeZone));
+    app.use('/api/capital',capital(db,businessTimeZone));
     app.get('/api/profit/entries', run(async (_req, res) => res.json(await db.rpc('kb_profit_entries', {}))));
     for (const [resource, router] of Object.entries(routes)) app.use('/api/' + resource, router(db));
     app.get('/api/export/:section', run(async (req, res) => {
-        const file = await exportReport(db, req.params.section, req.query.format);
-        res.attachment('khan-brothers-' + req.params.section + '.' + file.extension).type(file.mime).send(file.content);
+        const file = await exportReport(db, req.params.section, req.query.format,businessTimeZone);
+        res.attachment(file.filename).type(file.mime).send(file.content);
     }));
     app.use('/api', (_req, _res, next) => next(problem(404, 'Endpoint not found.')));
 

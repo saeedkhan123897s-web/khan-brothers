@@ -7,7 +7,8 @@
     const panel = document.getElementById('notificationPanel');
     const list = document.getElementById('notificationList');
     const status = document.getElementById('notificationStatus');
-    const storageKey = 'kb-notifications-v1';
+    const storagePrefix = 'kb-notifications-v1';
+    let storageKey = storagePrefix;
     const currency = new Intl.NumberFormat('en-PK', { style:'currency', currency:'PKR', maximumFractionDigits:2 });
     const titles = {
         'due-today':'Qist Due Today', 'due-tomorrow':'Qist Due Tomorrow', overdue:'Qist Overdue',
@@ -16,7 +17,9 @@
     };
     const esc = value => String(value ?? '').replace(/[&<>"']/g, character =>
         ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' })[character]);
-    let saved = readStored() || { items:[], signals:[], timeZone:'Asia/Muscat' };
+    const empty = () => ({ items:[], signals:[], timeZone:'Asia/Muscat' });
+    let saved = readStored() || empty();
+    let account;
     let enabled = false;
     let revision = 0;
     let pending = false;
@@ -65,7 +68,11 @@
     }
 
     function render() {
-        const unread = saved.items.filter(item => !item.read).length;
+        const grants = {'due-today':'qist','due-tomorrow':'qist',overdue:'qist','low-bikes':'stock','low-part':'parts',
+            ready:'workshop','qist-payment':'qist',summary:'daily',sale:'sell'};
+        const visible = saved.items.filter(item => account?.admin || account?.permissions?.includes(
+            item.id.startsWith('part-sale:') ? 'parts' : grants[item.kind]));
+        const unread = visible.filter(item => !item.read).length;
         badge.hidden = unread === 0;
         badge.textContent = unread;
         bell.setAttribute('aria-label',unread ? t('Notifications ({count} unread)',{count:unread}) : 'Notifications');
@@ -75,7 +82,7 @@
             dateStyle:'medium', timeStyle:'short', timeZone:saved.timeZone
         });
         const scroll = list.scrollTop;
-        list.innerHTML = saved.items.length ? saved.items.map(item =>
+        list.innerHTML = visible.length ? visible.map(item =>
             `<li class="notification-item${item.kind === 'overdue' ? ' is-overdue' : ''}${item.read ? '' : ' is-unread'}">
                 <div class="notification-content">
                     <h3>${esc(t(titles[item.kind]))}</h3>
@@ -99,10 +106,12 @@
         const low = (key,kind,values) => ({
             key, id:key + ':' + feed.now, kind, at:feed.now, values
         });
-        if (feed.bikeStock <= 5) candidates.push(low('low:bikes','low-bikes',{quantity:feed.bikeStock}));
+        if (feed.bikeStock != null && feed.bikeStock <= 5) candidates.push(low('low:bikes','low-bikes',{quantity:feed.bikeStock}));
         for (const part of feed.lowParts) candidates.push(low('low:part:' + part.id,'low-part',part));
-        const id = 'summary:' + feed.summary.day;
-        candidates.push({ id, key:id, kind:'summary', at:feed.summary.at, values:feed.summary });
+        if (feed.summary) {
+            const id = 'summary:' + feed.summary.day;
+            candidates.push({ id, key:id, kind:'summary', at:feed.summary.at, values:feed.summary });
+        }
 
         const known = new Set([...saved.signals,...saved.items.map(item => item.id)]);
         const additions = candidates.filter(item => !known.has(item.key)).map(({key,...item}) => ({...item,read:false}));
@@ -181,7 +190,17 @@
         if (updated) { saved = updated; render(); }
     });
     window.kbNotifications = {
-        start() {
+        start(user) {
+            const nextKey = user?.id ? storagePrefix + ':' + user.id : storagePrefix;
+            if (nextKey !== storageKey) {
+                revision++;
+                storageKey = nextKey;
+                saved = readStored() || empty();
+            }
+            if (JSON.stringify(account) !== JSON.stringify(user)) {
+                account = user;
+                render();
+            }
             if (enabled) return;
             enabled = true;
             check();
